@@ -22,11 +22,8 @@ export async function generateExcelFile(data: DailyWorkData) {
     
     // 날짜 포맷팅
     const formatDate = (dateStr: string) => {
-      const date = new Date(dateStr)
-      const month = date.getMonth() + 1
-      const day = date.getDate()
-      const year = date.getFullYear().toString()
-      return `${year}.${month}.${day}`
+      const [year, month, day] = dateStr.replaceAll(" ", "").split('.')
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
     }
     
     // 셀 값 업데이트 (스타일은 보존)
