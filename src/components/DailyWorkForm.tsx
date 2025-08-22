@@ -20,6 +20,12 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  MenuButton,
+  Menu,
+  MenuTrigger,
+  MenuPopover,
+  MenuList,
+  MenuItem,
 } from "@fluentui/react-components";
 import {
   Add20Regular,
@@ -31,14 +37,18 @@ import {
   CheckmarkCircle20Filled,
   Dismiss20Regular,
   TaskListSquareLtr20Regular,
-  DocumentArrowUp20Regular,
   Settings20Regular,
   Copy20Regular,
   ArrowUp20Regular,
   ArrowDown20Regular,
+  DocumentPdf20Regular,
+  ChevronDown16Regular,
+  Save20Regular,
+  DocumentTable20Regular,
 } from "@fluentui/react-icons";
 import { DailyWorkData, WorkTask } from "../types/dailyWork";
 import { generateExcelFile } from "../lib/excelGenerator";
+import { generateReactPDF } from "../lib/reactPdfGenerator";
 import { saveUserInfo, loadUserInfo, UserInfo } from "../lib/autoFill";
 
 // 우클릭 방지 핸들러
@@ -100,6 +110,7 @@ const useStyles = makeStyles({
   saveButton: {
     minWidth: "auto",
     boxShadow: tokens.shadow2,
+    alignItems: "center",
   },
   content: {
     flex: 1,
@@ -487,6 +498,17 @@ export default function DailyWorkForm() {
     }
   };
 
+  const handleExportReactPDF = async () => {
+    setIsLoading(true);
+    try {
+      await generateReactPDF(formData);
+    } catch (error) {
+      console.error("React PDF 파일 생성 중 오류:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <FluentProvider theme={webLightTheme}>
       <div className={styles.container} onContextMenu={handleRightClick}>
@@ -576,18 +598,38 @@ export default function DailyWorkForm() {
                 </DialogSurface>
               </Dialog>
 
-              <Tooltip content="엑셀 파일로 내보내기" relationship="label">
-                <Button
-                  appearance="primary"
-                  size="large"
-                  icon={<DocumentArrowUp20Regular />}
-                  onClick={handleExportExcel}
-                  className={styles.saveButton}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "저장 중..." : "엑셀 파일 저장"}
-                </Button>
-              </Tooltip>
+              <Menu>
+                <MenuTrigger disableButtonEnhancement>
+                  <MenuButton
+                    appearance="primary"
+                    size="large"
+                    icon={<Save20Regular />}
+                    menuIcon={<ChevronDown16Regular style={{display: "block"}} />}
+                    className={styles.saveButton}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "저장 중..." : "저장"}
+                  </MenuButton>
+                </MenuTrigger>
+                <MenuPopover>
+                  <MenuList>
+                    <MenuItem
+                      icon={<DocumentPdf20Regular />}
+                      onClick={handleExportReactPDF}
+                      disabled={isLoading}
+                    >
+                      PDF로 내보내기
+                    </MenuItem>
+                    <MenuItem
+                      icon={<DocumentTable20Regular />}
+                      onClick={handleExportExcel}
+                      disabled={isLoading}
+                    >
+                      엑셀 파일 저장
+                    </MenuItem>
+                  </MenuList>
+                </MenuPopover>
+              </Menu>
             </div>
           </header>
 
@@ -603,7 +645,9 @@ export default function DailyWorkForm() {
               <div className={styles.cardContent}>
                 <div className={styles.flexContainer}>
                   <div className={styles.firstRow}>
-                    <div className={`${styles.enhancedField} ${styles.dateField}`}>
+                    <div
+                      className={`${styles.enhancedField} ${styles.dateField}`}
+                    >
                       <Field label="작성일자" required>
                         <Input
                           type="date"
@@ -621,7 +665,9 @@ export default function DailyWorkForm() {
                         />
                       </Field>
                     </div>
-                    <div className={`${styles.enhancedField} ${styles.timeField}`}>
+                    <div
+                      className={`${styles.enhancedField} ${styles.timeField}`}
+                    >
                       <Field label="시작 시간" required>
                         <Input
                           type="time"
@@ -639,7 +685,9 @@ export default function DailyWorkForm() {
                         />
                       </Field>
                     </div>
-                    <div className={`${styles.enhancedField} ${styles.timeField}`}>
+                    <div
+                      className={`${styles.enhancedField} ${styles.timeField}`}
+                    >
                       <Field label="종료 시간" required>
                         <Input
                           type="time"
@@ -659,7 +707,9 @@ export default function DailyWorkForm() {
                     </div>
                   </div>
                   <div className={styles.secondRow}>
-                    <div className={`${styles.enhancedField} ${styles.equalField}`}>
+                    <div
+                      className={`${styles.enhancedField} ${styles.equalField}`}
+                    >
                       <Field label="부서명" required>
                         <Input
                           placeholder="클릭하여 설정하세요"
@@ -675,7 +725,9 @@ export default function DailyWorkForm() {
                         />
                       </Field>
                     </div>
-                    <div className={`${styles.enhancedField} ${styles.equalField}`}>
+                    <div
+                      className={`${styles.enhancedField} ${styles.equalField}`}
+                    >
                       <Field label="작성자" required>
                         <Input
                           placeholder="클릭하여 설정하세요"
