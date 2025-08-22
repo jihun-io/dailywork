@@ -1,31 +1,339 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
+  FluentProvider,
+  webLightTheme,
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Plus, Minus, Clock, Save, SaveIcon } from "lucide-react";
+  Text,
+  Button,
+  Input,
+  Field,
+  Textarea,
+  Checkbox,
+  makeStyles,
+  tokens,
+  Spinner,
+  Tooltip,
+  Dialog,
+  DialogTrigger,
+  DialogSurface,
+  DialogBody,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@fluentui/react-components";
+import {
+  Add20Regular,
+  Clock20Regular,
+  Person20Regular,
+  Building20Regular,
+  Calendar20Regular,
+  Info20Regular,
+  CheckmarkCircle20Filled,
+  Dismiss20Regular,
+  TaskListSquareLtr20Regular,
+  DocumentArrowUp20Regular,
+  Settings20Regular,
+  Copy20Regular,
+  ArrowUp20Regular,
+  ArrowDown20Regular,
+} from "@fluentui/react-icons";
 import { DailyWorkData, WorkTask } from "../types/dailyWork";
 import { generateExcelFile } from "../lib/excelGenerator";
-import {
-  saveUserInfo,
-  loadUserInfo,
-  UserInfo,
-} from "../lib/autoFill";
+import { saveUserInfo, loadUserInfo, UserInfo } from "../lib/autoFill";
+
+// 우클릭 방지 핸들러
+function handleRightClick(e: React.MouseEvent) {
+  // input 및 textarea 요소에서는 우클릭을 허용
+  if (
+    (e.target as HTMLElement).tagName !== "INPUT" &&
+    (e.target as HTMLElement).tagName !== "TEXTAREA"
+  ) {
+    e.preventDefault();
+  }
+}
+
+const useStyles = makeStyles({
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+    margin: "0 auto",
+    backgroundColor: tokens.colorNeutralBackground3,
+    overflow: "hidden",
+    userSelect: "none",
+    cursor: "default",
+  },
+  mainContent: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+  },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: `${tokens.spacingVerticalM} ${tokens.spacingHorizontalXXL}`,
+    backgroundColor: tokens.colorNeutralBackground1,
+    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+    boxShadow: tokens.shadow4,
+    zIndex: 10,
+    backdropFilter: "blur(8px)",
+  },
+  headerLeft: {
+    display: "flex",
+    alignItems: "center",
+    gap: tokens.spacingHorizontalM,
+  },
+  title: {
+    fontSize: tokens.fontSizeHero800,
+    fontWeight: tokens.fontWeightSemibold,
+    color: tokens.colorBrandForeground1,
+    margin: 0,
+    lineHeight: tokens.lineHeightHero800,
+    letterSpacing: "-0.02em",
+  },
+  headerActions: {
+    display: "flex",
+    gap: tokens.spacingHorizontalM,
+    alignItems: "center",
+  },
+  saveButton: {
+    minWidth: "auto",
+    boxShadow: tokens.shadow2,
+  },
+  content: {
+    flex: 1,
+    overflow: "auto",
+    padding: `${tokens.spacingVerticalXXL} ${tokens.spacingHorizontalXXL}`,
+    backgroundColor: tokens.colorNeutralBackground3,
+  },
+  card: {
+    marginBottom: tokens.spacingVerticalXXL,
+    boxShadow: tokens.shadow8,
+    border: "none",
+    borderRadius: tokens.borderRadiusXLarge,
+    overflow: "hidden",
+    backgroundColor: tokens.colorNeutralBackground1,
+  },
+  cardHeader: {
+    padding: `${tokens.spacingVerticalXL} ${tokens.spacingHorizontalXXL}`,
+    backgroundColor: tokens.colorSubtleBackground,
+    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+    position: "relative",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  cardContent: {
+    padding: `${tokens.spacingVerticalXXL} ${tokens.spacingHorizontalXXL}`,
+  },
+  sectionTitle: {
+    fontSize: tokens.fontSizeBase400,
+    fontWeight: tokens.fontWeightSemibold,
+    color: tokens.colorNeutralForeground1,
+    margin: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: tokens.spacingHorizontalS,
+  },
+  flexContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: tokens.spacingVerticalXL,
+    marginBottom: tokens.spacingVerticalXXL,
+  },
+  firstRow: {
+    display: "flex",
+    gap: tokens.spacingHorizontalXL,
+    alignItems: "end",
+  },
+  dateField: {
+    flex: 1,
+  },
+  timeField: {
+    flexShrink: 0,
+    width: "fit-content",
+    minWidth: "120px",
+  },
+  secondRow: {
+    display: "flex",
+    gap: tokens.spacingHorizontalXL,
+    flexWrap: "wrap",
+    rowGap: tokens.spacingVerticalXL,
+  },
+  equalField: {
+    flex: 1,
+    minWidth: "250px",
+  },
+  flexibleInput: {
+    minWidth: "0 !important",
+    width: "100%",
+    "& .fui-Input": {
+      minWidth: "0 !important",
+      width: "100%",
+    },
+    "& .fui-Input__input": {
+      minWidth: "0 !important",
+      width: "100%",
+    },
+  },
+  enhancedField: {
+    position: "relative",
+    "&:focus-within": {
+      "& .field-icon": {
+        color: tokens.colorBrandForeground1,
+      },
+    },
+  },
+  taskContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: tokens.spacingVerticalXL,
+  },
+  taskCard: {
+    position: "relative",
+    padding: `${tokens.spacingVerticalXL} ${tokens.spacingHorizontalXL}`,
+    backgroundColor: tokens.colorNeutralBackground1,
+    border: `2px solid ${tokens.colorNeutralStroke2}`,
+    borderRadius: tokens.borderRadiusLarge,
+    boxShadow: tokens.shadow4,
+    transition: "all 0.3s ease-out",
+    "&:focus-within": {
+      border: `2px solid ${tokens.colorBrandForeground1}`,
+      boxShadow: `${tokens.shadow16}, 0 0 0 2px ${tokens.colorBrandBackground2}`,
+    },
+    "&:hover": {
+      boxShadow: tokens.shadow8,
+    },
+  },
+  taskCardCompleted: {
+    backgroundColor: tokens.colorPaletteGreenBackground1,
+    border: `2px solid ${tokens.colorPaletteGreenForeground3}`,
+    position: "relative",
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: "3px",
+      backgroundColor: tokens.colorPaletteGreenBackground3,
+      borderRadius: `${tokens.borderRadiusLarge} ${tokens.borderRadiusLarge} 0 0`,
+    },
+  },
+  taskHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: tokens.spacingVerticalM,
+  },
+  taskNumber: {
+    width: "32px",
+    height: "32px",
+    borderRadius: "50%",
+    backgroundColor: tokens.colorBrandBackground,
+    color: tokens.colorNeutralForegroundOnBrand,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: tokens.fontSizeBase200,
+    fontWeight: tokens.fontWeightSemibold,
+    transition: "all 0.2s ease-out",
+  },
+  taskNumberCompleted: {
+    backgroundColor: tokens.colorPaletteGreenForeground3,
+  },
+  taskActions: {
+    display: "flex",
+    gap: tokens.spacingHorizontalS,
+    alignItems: "center",
+  },
+  taskButton: {
+    minWidth: "32px",
+    height: "32px",
+    borderRadius: "50%",
+  },
+  taskFieldContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: tokens.spacingVerticalL,
+  },
+  taskBottomSection: {
+    display: "grid",
+    gridTemplateColumns: "1fr auto",
+    gap: tokens.spacingHorizontalXL,
+    alignItems: "end",
+    marginTop: tokens.spacingVerticalL,
+  },
+  checkboxContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: tokens.spacingVerticalM,
+    borderRadius: tokens.borderRadiusMedium,
+    backgroundColor: tokens.colorSubtleBackground,
+    border: `1px solid ${tokens.colorNeutralStroke2}`,
+    minWidth: "140px",
+    transition: "all 0.2s ease-out",
+    "&:hover": {
+      backgroundColor: tokens.colorSubtleBackgroundHover,
+    },
+  },
+  buttonContainer: {
+    display: "flex",
+    justifyContent: "center",
+    gap: tokens.spacingHorizontalL,
+    marginTop: tokens.spacingVerticalXXL,
+    paddingTop: tokens.spacingVerticalXL,
+    borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
+  },
+  addTaskButton: {
+    minWidth: "200px",
+    boxShadow: tokens.shadow4,
+    transition: "all 0.2s ease-out",
+    "&:hover": {
+      boxShadow: tokens.shadow8,
+    },
+  },
+  specialNotesField: {
+    "& textarea": {
+      minHeight: "160px",
+      fontFamily: tokens.fontFamilyBase,
+      lineHeight: tokens.lineHeightBase400,
+      resize: "vertical",
+    },
+  },
+  timeRangeContainer: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+    gap: tokens.spacingHorizontalL,
+    "& .fui-Input": {
+      minWidth: "0 !important",
+      width: "100%",
+    },
+    "& .fui-Input__input": {
+      minWidth: "0 !important",
+      width: "100%",
+    },
+    "& input": {
+      minWidth: "0 !important",
+      width: "100%",
+    },
+  },
+});
 
 export default function DailyWorkForm() {
+  const styles = useStyles();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const departmentInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
   const [formData, setFormData] = useState<DailyWorkData>({
-    date: new Date().toISOString().split("T")[0],
+    date: new Date().toLocaleDateString("ko-KR"),
     name: "",
     department: "",
-    workTimeRange: "09:00 ~ 18:00",
+    startTime: "09:00",
+    endTime: "18:00",
     tasks: [
       {
         id: "1",
@@ -37,17 +345,77 @@ export default function DailyWorkForm() {
     specialNotes: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [userDialogOpen, setUserDialogOpen] = useState(false);
+
+  // 작업 통계 계산 (사이드바 제거로 현재 사용되지 않음)
+  // const taskStats = {
+  //   total: formData.tasks.length,
+  //   completed: formData.tasks.filter(task => task.completed).length,
+  //   pending: formData.tasks.filter(task => !task.completed).length,
+  //   completionRate: formData.tasks.length > 0
+  //     ? Math.round((formData.tasks.filter(task => task.completed).length / formData.tasks.length) * 100)
+  //     : 0
+  // };
+
   useEffect(() => {
     const userInfo = loadUserInfo();
     if (userInfo) {
+      // 기존 workTimeRange가 있으면 시작/종료 시간으로 분리
+      let startTime = "09:00";
+      let endTime = "18:00";
+
+      if (userInfo.workTimeRange) {
+        const timeMatch = userInfo.workTimeRange.match(
+          /(\d{2}:\d{2})\s*~\s*(\d{2}:\d{2})/
+        );
+        if (timeMatch) {
+          startTime = timeMatch[1];
+          endTime = timeMatch[2];
+        }
+      }
+
       setFormData((prev) => ({
         ...prev,
         name: userInfo.name,
         department: userInfo.department,
-        workTimeRange: userInfo.workTimeRange,
+        startTime,
+        endTime,
       }));
     }
   }, []);
+
+  const moveTask = (id: string, direction: "up" | "down") => {
+    const taskIndex = formData.tasks.findIndex((task) => task.id === id);
+    if (taskIndex === -1) return;
+
+    const newIndex = direction === "up" ? taskIndex - 1 : taskIndex + 1;
+    if (newIndex < 0 || newIndex >= formData.tasks.length) return;
+
+    const newTasks = [...formData.tasks];
+    [newTasks[taskIndex], newTasks[newIndex]] = [
+      newTasks[newIndex],
+      newTasks[taskIndex],
+    ];
+
+    setFormData((prev) => ({ ...prev, tasks: newTasks }));
+  };
+
+  const duplicateTask = (id: string) => {
+    const taskToDuplicate = formData.tasks.find((task) => task.id === id);
+    if (!taskToDuplicate) return;
+
+    const newTask: WorkTask = {
+      ...taskToDuplicate,
+      id: Date.now().toString(),
+      completed: false,
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      tasks: [...prev.tasks, newTask],
+    }));
+  };
 
   const addTask = () => {
     const newTask: WorkTask = {
@@ -82,210 +450,413 @@ export default function DailyWorkForm() {
     const userInfo: UserInfo = {
       name: formData.name,
       department: formData.department,
-      workTimeRange: formData.workTimeRange,
+      workTimeRange: `${formData.startTime} ~ ${formData.endTime}`, // time 필드를 문자열로 변환
     };
     saveUserInfo(userInfo);
-    alert("사용자 정보가 저장되었습니다!");
+  };
+
+  const openModalWithDepartmentFocus = () => {
+    setUserDialogOpen(true);
+    // 모달이 열린 후 포커스를 주기 위해 약간의 지연 필요
+    setTimeout(() => {
+      departmentInputRef.current?.focus();
+    }, 100);
+  };
+
+  const openModalWithNameFocus = () => {
+    setUserDialogOpen(true);
+    // 모달이 열린 후 포커스를 주기 위해 약간의 지연 필요
+    setTimeout(() => {
+      nameInputRef.current?.focus();
+    }, 100);
   };
 
   const handleExportExcel = async () => {
+    setIsLoading(true);
     try {
       await generateExcelFile(formData);
     } catch (error) {
       console.error("엑셀 파일 생성 중 오류:", error);
-      alert("엑셀 파일 생성 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="container mx-auto max-w-4xl grid grid-cols-1 grid-rows-[auto 1fr] h-dvh overflow-hidden select-none cursor-default">
-      <div className="h-fit p-4 flex flex-row justify-between">
-        <h1 className="text-3xl font-bold text-left mb-2">dailywork</h1>
-        <div className="">
-          <Button
-            onClick={handleExportExcel}
-            size="lg"
-            className="w-full md:w-auto"
-          >
-            <SaveIcon className="w-4 h-4 mr-2" />
-            엑셀 파일로 저장
-          </Button>
-        </div>
-      </div>
-      <div className="overflow-y-scroll p-4">
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>기본 정보</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="date">작성일자</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, date: e.target.value }))
-                  }
+    <FluentProvider theme={webLightTheme}>
+      <div className={styles.container} onContextMenu={handleRightClick}>
+        {/* 메인 콘텐츠 */}
+        <div className={styles.mainContent}>
+          <header className={styles.header}>
+            <div className={styles.headerLeft}>
+              <Text className={styles.title}>dailywork</Text>
+            </div>
+            <div className={styles.headerActions}>
+              {isLoading && <Spinner size="small" />}
+
+              {/* 사용자 정보 모달 */}
+              <Dialog
+                open={userDialogOpen}
+                onOpenChange={(_, data) => setUserDialogOpen(data.open)}
+              >
+                <DialogTrigger disableButtonEnhancement>
+                  <Tooltip content="사용자 정보 설정" relationship="label">
+                    <Button
+                      appearance="subtle"
+                      size="large"
+                      icon={<Settings20Regular />}
+                    >
+                      설정
+                    </Button>
+                  </Tooltip>
+                </DialogTrigger>
+                <DialogSurface>
+                  <DialogBody>
+                    <DialogTitle>사용자 정보 설정</DialogTitle>
+                    <DialogContent>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: tokens.spacingVerticalL,
+                        }}
+                      >
+                        <Field label="작성자" required>
+                          <Input
+                            ref={nameInputRef}
+                            placeholder="이름을 입력하세요"
+                            value={formData.name}
+                            contentBefore={<Person20Regular />}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                name: e.target.value,
+                              }))
+                            }
+                            size="large"
+                          />
+                        </Field>
+                        <Field label="부서명" required>
+                          <Input
+                            ref={departmentInputRef}
+                            placeholder="부서명을 입력하세요"
+                            value={formData.department}
+                            contentBefore={<Building20Regular />}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                department: e.target.value,
+                              }))
+                            }
+                            size="large"
+                          />
+                        </Field>
+                      </div>
+                    </DialogContent>
+                    <DialogActions>
+                      <DialogTrigger disableButtonEnhancement>
+                        <Button appearance="secondary">취소</Button>
+                      </DialogTrigger>
+                      <Button
+                        appearance="primary"
+                        onClick={() => {
+                          handleSaveUserInfo();
+                          setUserDialogOpen(false);
+                        }}
+                      >
+                        저장
+                      </Button>
+                    </DialogActions>
+                  </DialogBody>
+                </DialogSurface>
+              </Dialog>
+
+              <Tooltip content="엑셀 파일로 내보내기" relationship="label">
+                <Button
+                  appearance="primary"
+                  size="large"
+                  icon={<DocumentArrowUp20Regular />}
+                  onClick={handleExportExcel}
+                  className={styles.saveButton}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "저장 중..." : "엑셀 파일 저장"}
+                </Button>
+              </Tooltip>
+            </div>
+          </header>
+
+          <main className={styles.content} ref={contentRef}>
+            {/* 기본 정보 카드 */}
+            <Card className={styles.card}>
+              <div className={styles.cardHeader}>
+                <Text className={styles.sectionTitle}>
+                  <Calendar20Regular />
+                  기본 정보
+                </Text>
+              </div>
+              <div className={styles.cardContent}>
+                <div className={styles.flexContainer}>
+                  <div className={styles.firstRow}>
+                    <div className={`${styles.enhancedField} ${styles.dateField}`}>
+                      <Field label="작성일자" required>
+                        <Input
+                          type="date"
+                          value={formData.date}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              date: e.target.value,
+                            }))
+                          }
+                          size="large"
+                          contentBefore={
+                            <Calendar20Regular className="field-icon" />
+                          }
+                        />
+                      </Field>
+                    </div>
+                    <div className={`${styles.enhancedField} ${styles.timeField}`}>
+                      <Field label="시작 시간" required>
+                        <Input
+                          type="time"
+                          value={formData.startTime}
+                          contentBefore={
+                            <Clock20Regular className="field-icon" />
+                          }
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              startTime: e.target.value,
+                            }))
+                          }
+                          size="large"
+                        />
+                      </Field>
+                    </div>
+                    <div className={`${styles.enhancedField} ${styles.timeField}`}>
+                      <Field label="종료 시간" required>
+                        <Input
+                          type="time"
+                          value={formData.endTime}
+                          contentBefore={
+                            <Clock20Regular className="field-icon" />
+                          }
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              endTime: e.target.value,
+                            }))
+                          }
+                          size="large"
+                        />
+                      </Field>
+                    </div>
+                  </div>
+                  <div className={styles.secondRow}>
+                    <div className={`${styles.enhancedField} ${styles.equalField}`}>
+                      <Field label="부서명" required>
+                        <Input
+                          placeholder="클릭하여 설정하세요"
+                          value={formData.department}
+                          contentBefore={
+                            <Building20Regular className="field-icon" />
+                          }
+                          size="large"
+                          readOnly
+                          tabIndex={-1}
+                          onClick={openModalWithDepartmentFocus}
+                          className={styles.flexibleInput}
+                          style={{ cursor: 'pointer' }}
+                        />
+                      </Field>
+                    </div>
+                    <div className={`${styles.enhancedField} ${styles.equalField}`}>
+                      <Field label="작성자" required>
+                        <Input
+                          placeholder="클릭하여 설정하세요"
+                          value={formData.name}
+                          contentBefore={
+                            <Person20Regular className="field-icon" />
+                          }
+                          size="large"
+                          readOnly
+                          tabIndex={-1}
+                          onClick={openModalWithNameFocus}
+                          className={styles.flexibleInput}
+                          style={{ cursor: 'pointer' }}
+                        />
+                      </Field>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* 업무 내용 카드 */}
+            <Card className={styles.card}>
+              <div className={styles.cardHeader}>
+                <Text className={styles.sectionTitle}>
+                  <TaskListSquareLtr20Regular />
+                  업무 내용
+                </Text>
+                <Button
+                  appearance="subtle"
+                  icon={<Add20Regular />}
+                  onClick={addTask}
+                  size="small"
                 />
               </div>
-              <div>
-                <Label htmlFor="workTimeRange">근무시간</Label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    id="workTimeRange"
-                    placeholder="09:00 ~ 18:00"
-                    value={formData.workTimeRange}
+              <div className={styles.cardContent}>
+                <div className={styles.taskContainer}>
+                  {formData.tasks.map((task, index) => (
+                    <div
+                      key={task.id}
+                      className={`${styles.taskCard} ${
+                        task.completed ? styles.taskCardCompleted : ""
+                      }`}
+                    >
+                      <div className={styles.taskHeader}>
+                        <div
+                          className={`${styles.taskNumber} ${
+                            task.completed ? styles.taskNumberCompleted : ""
+                          }`}
+                        >
+                          {task.completed ? (
+                            <CheckmarkCircle20Filled />
+                          ) : (
+                            index + 1
+                          )}
+                        </div>
+
+                        <div className={styles.taskActions}>
+                          {index > 0 && (
+                            <Tooltip content="위로 이동" relationship="label">
+                              <Button
+                                appearance="subtle"
+                                size="small"
+                                icon={<ArrowUp20Regular />}
+                                onClick={() => moveTask(task.id, "up")}
+                                className={styles.taskButton}
+                              />
+                            </Tooltip>
+                          )}
+                          {index < formData.tasks.length - 1 && (
+                            <Tooltip content="아래로 이동" relationship="label">
+                              <Button
+                                appearance="subtle"
+                                size="small"
+                                icon={<ArrowDown20Regular />}
+                                onClick={() => moveTask(task.id, "down")}
+                                className={styles.taskButton}
+                              />
+                            </Tooltip>
+                          )}
+                          <Tooltip content="복사" relationship="label">
+                            <Button
+                              appearance="subtle"
+                              size="small"
+                              icon={<Copy20Regular />}
+                              onClick={() => duplicateTask(task.id)}
+                              className={styles.taskButton}
+                            />
+                          </Tooltip>
+                          {formData.tasks.length > 1 && (
+                            <Tooltip content="삭제" relationship="label">
+                              <Button
+                                appearance="subtle"
+                                size="small"
+                                icon={<Dismiss20Regular />}
+                                onClick={() => removeTask(task.id)}
+                                className={styles.taskButton}
+                              />
+                            </Tooltip>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className={styles.taskFieldContainer}>
+                        <Field label={`업무 ${index + 1}`} required>
+                          <Input
+                            placeholder="수행한 업무 내용을 입력하세요"
+                            value={task.description}
+                            onChange={(e) =>
+                              updateTask(task.id, {
+                                description: e.target.value,
+                              })
+                            }
+                            size="large"
+                          />
+                        </Field>
+
+                        <div className={styles.taskBottomSection}>
+                          <Field label="비고 (진행상황 또는 이슈사항)">
+                            <Input
+                              placeholder="진행상황, 이슈사항 등을 입력하세요"
+                              value={task.notes}
+                              onChange={(e) =>
+                                updateTask(task.id, { notes: e.target.value })
+                              }
+                              size="large"
+                            />
+                          </Field>
+                          <Checkbox
+                            checked={task.completed}
+                            onChange={(_, data) =>
+                              updateTask(task.id, { completed: !!data.checked })
+                            }
+                            style={{ cursor: "default" }}
+                            label="완료됨"
+                            size="large"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className={styles.buttonContainer}>
+                  <Button
+                    appearance="primary"
+                    icon={<Add20Regular />}
+                    onClick={addTask}
+                    className={styles.addTaskButton}
+                    size="large"
+                  >
+                    업무 항목 추가
+                  </Button>
+                </div>
+              </div>
+            </Card>
+
+            {/* 특이사항 카드 */}
+            <Card className={styles.card}>
+              <div className={styles.cardHeader}>
+                <Text className={styles.sectionTitle}>
+                  <Info20Regular />
+                  특이사항
+                </Text>
+              </div>
+              <div className={styles.cardContent}>
+                <Field label="특이사항 (신규 발생 업무 또는 이슈사항 등)">
+                  <Textarea
+                    placeholder="신규 발생 업무, 이슈사항, 특별한 사항 등을 작성하세요..."
+                    value={formData.specialNotes}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        workTimeRange: e.target.value,
+                        specialNotes: e.target.value,
                       }))
                     }
-                    className="pl-10"
+                    className={styles.specialNotesField}
+                    resize="vertical"
                   />
-                </div>
+                </Field>
               </div>
-              <div>
-                <Label htmlFor="department">부서명</Label>
-                <Input
-                  id="department"
-                  placeholder="부서명을 입력하세요"
-                  value={formData.department}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      department: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-              <div>
-                <Label htmlFor="name">작성자</Label>
-                <Input
-                  id="name"
-                  placeholder="이름을 입력하세요"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <Button onClick={handleSaveUserInfo} variant="outline" size="sm">
-                <Save className="w-4 h-4 mr-2" />
-                사용자 정보 저장
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="mb-6">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle>업무 내용</CardTitle>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {formData.tasks.map((task) => (
-              <div
-                key={task.id}
-                className="border rounded-lg p-4 space-y-3 relative"
-              >
-                {formData.tasks.length > 1 && (
-                  <Button
-                    variant="outline"
-                    onClick={() => removeTask(task.id)}
-                    className="p-0 ml-auto absolute right-2 top-2 w-6 h-6"
-                  >
-                    <Minus />
-                  </Button>
-                )}
-
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <Label>업무 내용</Label>
-                  </div>
-                  <Input
-                    placeholder="수행한 업무 내용을 입력하세요"
-                    value={task.description}
-                    onChange={(e) =>
-                      updateTask(task.id, { description: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id={`completed-${task.id}`}
-                      checked={task.completed}
-                      onChange={(e) =>
-                        updateTask(task.id, { completed: e.target.checked })
-                      }
-                      className="w-4 h-4"
-                    />
-                    <Label
-                      htmlFor={`completed-${task.id}`}
-                      className="text-sm font-medium"
-                    >
-                      업무 완료
-                    </Label>
-                  </div>
-                  <div>
-                    <Label>비고 (진행사항 or 이슈사항 등)</Label>
-                    <Input
-                      placeholder="비고사항을 입력하세요"
-                      value={task.notes}
-                      onChange={(e) =>
-                        updateTask(task.id, { notes: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-            <div className="flex gap-2">
-              <Button onClick={addTask} size="sm" className="ml-auto">
-                <Plus className="w-4 h-4 mr-2" />
-                업무 추가
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>특이사항</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div>
-              <Label htmlFor="specialNotes">
-                특이사항 (신규 발생 업무 or 이슈사항 등)
-              </Label>
-              <textarea
-                id="specialNotes"
-                className="w-full min-h-[120px] px-3 py-2 border border-input rounded-md bg-background mt-2"
-                placeholder="신규 발생 업무, 이슈사항, 특별한 사항 등을 자유롭게 작성하세요"
-                value={formData.specialNotes}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    specialNotes: e.target.value,
-                  }))
-                }
-              />
-            </div>
-          </CardContent>
-        </Card>
+            </Card>
+          </main>
+        </div>
       </div>
-    </div>
+    </FluentProvider>
   );
 }

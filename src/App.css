@@ -12,5 +12,9 @@
 html,
 body,
 * {
-  font-family: "Pretendard Variable";
+  font-family: "Pretendard Variable"!important;
+}
+
+button {
+  cursor: default!important;
 }
