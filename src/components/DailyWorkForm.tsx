@@ -1,26 +1,190 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
+  FluentProvider,
+  webLightTheme,
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Plus, Minus, Clock, Save, SaveIcon } from "lucide-react";
+  Text,
+  Button,
+  Input,
+  Field,
+  Textarea,
+  Checkbox,
+  makeStyles,
+  tokens,
+} from "@fluentui/react-components";
+import {
+  Add20Regular,
+  Subtract20Regular,
+  Clock20Regular,
+  Save20Regular,
+} from "@fluentui/react-icons";
 import { DailyWorkData, WorkTask } from "../types/dailyWork";
 import { generateExcelFile } from "../lib/excelGenerator";
-import {
-  saveUserInfo,
-  loadUserInfo,
-  UserInfo,
-} from "../lib/autoFill";
+import { saveUserInfo, loadUserInfo, UserInfo } from "../lib/autoFill";
+
+function handleRightClick(e: React.MouseEvent) {
+  if (
+    (e.target as HTMLElement).tagName !== "INPUT" &&
+    (e.target as HTMLElement).tagName !== "TEXTAREA"
+  ) {
+    e.preventDefault();
+  }
+}
+
+const useStyles = makeStyles({
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+    margin: "0 auto",
+    backgroundColor: tokens.colorNeutralBackground1,
+    overflow: "hidden",
+    userSelect: "none",
+    cursor: "default",
+  },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalXL}`,
+    backgroundColor: tokens.colorNeutralBackground1,
+    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+    boxShadow: tokens.shadow2,
+    zIndex: 10,
+  },
+  title: {
+    fontSize: tokens.fontSizeHero900,
+    fontWeight: tokens.fontWeightBold,
+    color: tokens.colorBrandForeground1,
+    margin: 0,
+    lineHeight: tokens.lineHeightHero900,
+  },
+  saveButton: {
+    minWidth: "160px",
+  },
+  content: {
+    flex: 1,
+    overflow: "auto",
+    padding: `${tokens.spacingVerticalXL} ${tokens.spacingHorizontalXL}`,
+    backgroundColor: tokens.colorNeutralBackground2,
+    "@media (max-width: 768px)": {
+      padding: tokens.spacingHorizontalM,
+    },
+  },
+  card: {
+    marginBottom: tokens.spacingVerticalXL,
+    boxShadow: tokens.shadow4,
+    border: "none",
+    borderRadius: tokens.borderRadiusLarge,
+    overflow: "hidden",
+  },
+  cardHeader: {
+    padding: `${tokens.spacingVerticalL} ${tokens.spacingHorizontalXL}`,
+    backgroundColor: tokens.colorNeutralBackground1,
+    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+  },
+  cardContent: {
+    padding: tokens.spacingHorizontalXL,
+  },
+  sectionTitle: {
+    fontSize: tokens.fontSizeBase500,
+    fontWeight: tokens.fontWeightSemibold,
+    color: tokens.colorNeutralForeground1,
+    margin: 0,
+  },
+  gridContainer: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: tokens.spacingHorizontalL,
+    marginBottom: tokens.spacingVerticalL,
+    "@media (max-width: 768px)": {
+      gridTemplateColumns: "1fr",
+      gap: tokens.spacingHorizontalM,
+    },
+  },
+  fieldGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: tokens.spacingVerticalS,
+  },
+  taskContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: tokens.spacingVerticalM,
+  },
+  taskCard: {
+    position: "relative",
+    padding: tokens.spacingHorizontalL,
+    backgroundColor: tokens.colorNeutralBackground1,
+    border: `1px solid ${tokens.colorNeutralStroke2}`,
+    borderRadius: tokens.borderRadiusMedium,
+    boxShadow: tokens.shadow2,
+    transition: "all 0.2s ease-in-out",
+  },
+  taskCardHover: {
+    boxShadow: tokens.shadow8,
+    border: `1px solid ${tokens.colorBrandStroke1}`,
+  },
+  taskCardCompleted: {
+    backgroundColor: tokens.colorPaletteGreenBackground1,
+    border: `1px solid ${tokens.colorPaletteGreenBorder1}`,
+  },
+  removeButton: {
+    position: "absolute",
+    top: tokens.spacingVerticalS,
+    right: tokens.spacingHorizontalS,
+    minWidth: "32px",
+    height: "32px",
+  },
+  taskFieldContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: tokens.spacingVerticalM,
+    marginTop: tokens.spacingVerticalS,
+  },
+  taskBottomSection: {
+    display: "grid",
+    gridTemplateColumns: "1fr auto",
+    gap: tokens.spacingHorizontalL,
+    alignItems: "start",
+    marginTop: tokens.spacingVerticalM,
+    "@media (max-width: 768px)": {
+      gridTemplateColumns: "1fr",
+      gap: tokens.spacingVerticalM,
+    },
+  },
+  checkboxContainer: {
+    display: "flex",
+    alignItems: "flex-start",
+    paddingTop: "6px",
+  },
+  buttonContainer: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: tokens.spacingHorizontalM,
+    marginTop: tokens.spacingVerticalL,
+  },
+  addTaskButton: {
+    minWidth: "140px",
+  },
+  userInfoSection: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: tokens.spacingVerticalL,
+    paddingTop: tokens.spacingVerticalM,
+    borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
+  },
+  specialNotesField: {
+    "& textarea": {
+      minHeight: "120px",
+      fontFamily: tokens.fontFamilyBase,
+      lineHeight: tokens.lineHeightBase300,
+    },
+  },
+});
 
 export default function DailyWorkForm() {
+  const styles = useStyles();
   const [formData, setFormData] = useState<DailyWorkData>({
     date: new Date().toISOString().split("T")[0],
     name: "",
@@ -98,194 +262,195 @@ export default function DailyWorkForm() {
   };
 
   return (
-    <div className="container mx-auto max-w-4xl grid grid-cols-1 grid-rows-[auto 1fr] h-dvh overflow-hidden select-none cursor-default">
-      <div className="h-fit p-4 flex flex-row justify-between">
-        <h1 className="text-3xl font-bold text-left mb-2">dailywork</h1>
-        <div className="">
+    <FluentProvider theme={webLightTheme}>
+      <div className={styles.container} onContextMenu={handleRightClick}>
+        <header className={styles.header}>
+          <Text as="h1" className={styles.title}>
+            dailywork
+          </Text>
           <Button
+            appearance="primary"
+            size="large"
+            icon={<Save20Regular />}
             onClick={handleExportExcel}
-            size="lg"
-            className="w-full md:w-auto"
+            className={styles.saveButton}
           >
-            <SaveIcon className="w-4 h-4 mr-2" />
             엑셀 파일로 저장
           </Button>
-        </div>
-      </div>
-      <div className="overflow-y-scroll p-4">
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>기본 정보</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="date">작성일자</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, date: e.target.value }))
-                  }
-                />
-              </div>
-              <div>
-                <Label htmlFor="workTimeRange">근무시간</Label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+        </header>
+
+        <main className={styles.content}>
+          <Card className={styles.card} appearance="filled">
+            <div className={styles.cardHeader}>
+              <Text className={styles.sectionTitle}>기본 정보</Text>
+            </div>
+            <div className={styles.cardContent}>
+              <div className={styles.gridContainer}>
+                <Field label="작성일자">
                   <Input
-                    id="workTimeRange"
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, date: e.target.value }))
+                    }
+                    size="large"
+                  />
+                </Field>
+                <Field label="근무시간">
+                  <Input
                     placeholder="09:00 ~ 18:00"
                     value={formData.workTimeRange}
+                    contentBefore={<Clock20Regular />}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
                         workTimeRange: e.target.value,
                       }))
                     }
-                    className="pl-10"
+                    size="large"
                   />
-                </div>
+                </Field>
+                <Field label="부서명">
+                  <Input
+                    placeholder="부서명을 입력하세요"
+                    value={formData.department}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        department: e.target.value,
+                      }))
+                    }
+                    size="large"
+                  />
+                </Field>
+                <Field label="작성자">
+                  <Input
+                    placeholder="이름을 입력하세요"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, name: e.target.value }))
+                    }
+                    size="large"
+                  />
+                </Field>
               </div>
-              <div>
-                <Label htmlFor="department">부서명</Label>
-                <Input
-                  id="department"
-                  placeholder="부서명을 입력하세요"
-                  value={formData.department}
+
+              <div className={styles.userInfoSection}>
+                <Button
+                  appearance="subtle"
+                  icon={<Save20Regular />}
+                  onClick={handleSaveUserInfo}
+                >
+                  사용자 정보 저장
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          <Card className={styles.card} appearance="filled">
+            <div className={styles.cardHeader}>
+              <Text className={styles.sectionTitle}>업무 내용</Text>
+            </div>
+            <div className={styles.cardContent}>
+              <div className={styles.taskContainer}>
+                {formData.tasks.map((task, index) => (
+                  <div
+                    key={task.id}
+                    className={`${styles.taskCard} ${
+                      task.completed ? styles.taskCardCompleted : ""
+                    }`}
+                  >
+                    {formData.tasks.length > 1 && (
+                      <Button
+                        appearance="subtle"
+                        size="small"
+                        icon={<Subtract20Regular />}
+                        onClick={() => removeTask(task.id)}
+                        className={styles.removeButton}
+                        title="업무 항목 삭제"
+                      />
+                    )}
+
+                    <div className={styles.taskFieldContainer}>
+                      <Field label={`업무 ${index + 1}`}>
+                        <Input
+                          placeholder="수행한 업무 내용을 입력하세요"
+                          value={task.description}
+                          onChange={(e) =>
+                            updateTask(task.id, { description: e.target.value })
+                          }
+                          size="large"
+                        />
+                      </Field>
+
+                      <div className={styles.taskBottomSection}>
+                        <Field label="비고 (진행상황 또는 이슈사항)">
+                          <Input
+                            placeholder="진행상황, 이슈사항 등을 입력하세요"
+                            value={task.notes}
+                            onChange={(e) =>
+                              updateTask(task.id, { notes: e.target.value })
+                            }
+                            size="large"
+                          />
+                        </Field>
+                        <div className={styles.checkboxContainer}>
+                          <Checkbox
+                            checked={task.completed}
+                            onChange={(_, data) =>
+                              updateTask(task.id, { completed: !!data.checked })
+                            }
+                            label="완료됨"
+                            size="large"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className={styles.buttonContainer}>
+                <Button
+                  appearance="primary"
+                  icon={<Add20Regular />}
+                  onClick={addTask}
+                  className={styles.addTaskButton}
+                  size="large"
+                >
+                  업무 항목 추가
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          <Card className={styles.card} appearance="filled">
+            <div className={styles.cardHeader}>
+              <Text className={styles.sectionTitle}>특이사항</Text>
+            </div>
+            <div className={styles.cardContent}>
+              <Field
+                label="특이사항 (신규 발생 업무 또는 이슈사항 등)"
+                hint="업무 중 발생한 특별한 사항이나 이슈를 작성해주세요"
+              >
+                <Textarea
+                  rows={6}
+                  placeholder="신규 발생 업무, 이슈사항, 특별한 사항 등을 작성하세요..."
+                  value={formData.specialNotes}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      department: e.target.value,
+                      specialNotes: e.target.value,
                     }))
                   }
+                  className={styles.specialNotesField}
+                  resize="vertical"
                 />
-              </div>
-              <div>
-                <Label htmlFor="name">작성자</Label>
-                <Input
-                  id="name"
-                  placeholder="이름을 입력하세요"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                />
-              </div>
+              </Field>
             </div>
-
-            <div className="flex justify-end">
-              <Button onClick={handleSaveUserInfo} variant="outline" size="sm">
-                <Save className="w-4 h-4 mr-2" />
-                사용자 정보 저장
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="mb-6">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle>업무 내용</CardTitle>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {formData.tasks.map((task) => (
-              <div
-                key={task.id}
-                className="border rounded-lg p-4 space-y-3 relative"
-              >
-                {formData.tasks.length > 1 && (
-                  <Button
-                    variant="outline"
-                    onClick={() => removeTask(task.id)}
-                    className="p-0 ml-auto absolute right-2 top-2 w-6 h-6"
-                  >
-                    <Minus />
-                  </Button>
-                )}
-
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <Label>업무 내용</Label>
-                  </div>
-                  <Input
-                    placeholder="수행한 업무 내용을 입력하세요"
-                    value={task.description}
-                    onChange={(e) =>
-                      updateTask(task.id, { description: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id={`completed-${task.id}`}
-                      checked={task.completed}
-                      onChange={(e) =>
-                        updateTask(task.id, { completed: e.target.checked })
-                      }
-                      className="w-4 h-4"
-                    />
-                    <Label
-                      htmlFor={`completed-${task.id}`}
-                      className="text-sm font-medium"
-                    >
-                      업무 완료
-                    </Label>
-                  </div>
-                  <div>
-                    <Label>비고 (진행사항 or 이슈사항 등)</Label>
-                    <Input
-                      placeholder="비고사항을 입력하세요"
-                      value={task.notes}
-                      onChange={(e) =>
-                        updateTask(task.id, { notes: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-            <div className="flex gap-2">
-              <Button onClick={addTask} size="sm" className="ml-auto">
-                <Plus className="w-4 h-4 mr-2" />
-                업무 추가
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>특이사항</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div>
-              <Label htmlFor="specialNotes">
-                특이사항 (신규 발생 업무 or 이슈사항 등)
-              </Label>
-              <textarea
-                id="specialNotes"
-                className="w-full min-h-[120px] px-3 py-2 border border-input rounded-md bg-background mt-2"
-                placeholder="신규 발생 업무, 이슈사항, 특별한 사항 등을 자유롭게 작성하세요"
-                value={formData.specialNotes}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    specialNotes: e.target.value,
-                  }))
-                }
-              />
-            </div>
-          </CardContent>
-        </Card>
+          </Card>
+        </main>
       </div>
-    </div>
+    </FluentProvider>
   );
 }
