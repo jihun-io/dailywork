@@ -119,7 +119,7 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground3,
   },
   card: {
-    marginBottom: tokens.spacingVerticalXXL,
+    marginBottom: tokens.spacingVerticalXL,
     boxShadow: tokens.shadow8,
     border: "none",
     borderRadius: tokens.borderRadiusXLarge,
@@ -127,7 +127,7 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground1,
   },
   cardHeader: {
-    padding: `${tokens.spacingVerticalXL} ${tokens.spacingHorizontalXXL}`,
+    padding: `${tokens.spacingVerticalL} ${tokens.spacingHorizontalXXL}`,
     backgroundColor: tokens.colorSubtleBackground,
     borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
     position: "relative",
@@ -136,7 +136,7 @@ const useStyles = makeStyles({
     alignItems: "center",
   },
   cardContent: {
-    padding: `${tokens.spacingVerticalXXL} ${tokens.spacingHorizontalXXL}`,
+    padding: `${tokens.spacingVerticalL} ${tokens.spacingHorizontalXXL}`,
   },
   sectionTitle: {
     fontSize: tokens.fontSizeBase400,
@@ -211,10 +211,7 @@ const useStyles = makeStyles({
     transition: "all 0.3s ease-out",
     "&:focus-within": {
       border: `2px solid ${tokens.colorBrandForeground1}`,
-      boxShadow: `${tokens.shadow16}, 0 0 0 2px ${tokens.colorBrandBackground2}`,
-    },
-    "&:hover": {
-      boxShadow: tokens.shadow8,
+      boxShadow: `${tokens.shadow8}, 0 0 0 2px ${tokens.colorBrandBackground2}`,
     },
   },
   taskCardCompleted: {
