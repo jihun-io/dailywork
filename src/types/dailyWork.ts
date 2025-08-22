@@ -2,7 +2,8 @@ export interface DailyWorkData {
   date: string;
   name: string;
   department: string;
-  workTimeRange: string;
+  startTime: string;
+  endTime: string;
   tasks: WorkTask[];
   specialNotes: string;
 }

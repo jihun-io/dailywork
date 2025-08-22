@@ -35,7 +35,7 @@ export async function generateExcelFile(data: DailyWorkData) {
 
     // 기본 정보 채우기
     updateCellValue('C4', formatDate(data.date))
-    updateCellValue('E4', data.workTimeRange)  
+    updateCellValue('E4', `${data.startTime} ~ ${data.endTime}`)  
     updateCellValue('C5', data.department)
     updateCellValue('E5', data.name)
     
