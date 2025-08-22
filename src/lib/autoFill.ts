@@ -1,5 +1,3 @@
-import { DailyWorkData } from '@/types/dailyWork'
-
 const USER_INFO_KEY = 'dailyWork_userInfo'
 const COMMON_TASKS_KEY = 'dailyWork_commonTasks'
 
