@@ -225,7 +225,7 @@ const useStyles = makeStyles({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: tokens.spacingVerticalM,
+    marginBottom: tokens.spacingVerticalS,
   },
   taskNumber: {
     width: "32px",
@@ -790,7 +790,7 @@ export default function DailyWorkForm() {
                         </Field>
 
                         <div className={styles.taskBottomSection}>
-                          <Field label="비고 (진행상황 또는 이슈사항)">
+                          <Field label="비고">
                             <Input
                               placeholder="진행상황, 이슈사항 등을 입력하세요"
                               value={task.notes}
@@ -838,7 +838,7 @@ export default function DailyWorkForm() {
                 </Text>
               </div>
               <div className={styles.cardContent}>
-                <Field label="특이사항 (신규 발생 업무 또는 이슈사항 등)">
+                <Field>
                   <Textarea
                     placeholder="신규 발생 업무, 이슈사항, 특별한 사항 등을 작성하세요..."
                     value={formData.specialNotes}
