@@ -1,5 +1,7 @@
 import ExcelJS from 'exceljs'
 import { DailyWorkData } from '../types/dailyWork'
+import { save } from '@tauri-apps/plugin-dialog'
+import { writeFile } from '@tauri-apps/plugin-fs'
 
 export async function generateExcelFile(data: DailyWorkData) {
   try {
@@ -59,25 +61,27 @@ export async function generateExcelFile(data: DailyWorkData) {
     // 특이사항 입력
     updateCellValue('B17', data.specialNotes)
     
-    // 파일을 Blob으로 변환
+    // 파일을 Buffer로 변환
     const buffer = await workbook.xlsx.writeBuffer()
-    const blob = new Blob([buffer], { 
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    
+    // 기본 파일명 생성
+    const defaultFilename = `일일업무일지_${data.name}_${formatDate(data.date)}.xlsx`
+    
+    // 파일 저장 대화상자 열기
+    const filePath = await save({
+      defaultPath: defaultFilename,
+      filters: [{
+        name: 'Excel Files',
+        extensions: ['xlsx']
+      }]
     })
     
-    // 파일 다운로드
-    const url = window.URL.createObjectURL(blob)
-    const filename = `일일업무일지_${data.name}_${data.date}.xlsx`
-    
-    const link = document.createElement('a')
-    link.href = url
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    
-    // URL 객체 해제
-    window.URL.revokeObjectURL(url)
+    // 사용자가 저장을 취소하지 않은 경우
+    if (filePath) {
+      // Tauri의 writeFile을 사용해서 파일 저장
+      await writeFile(filePath, new Uint8Array(buffer))
+      alert('파일이 성공적으로 저장되었습니다!')
+    }
 
   } catch (error: any) {
     console.error('Excel 파일 생성 중 오류:', error)
