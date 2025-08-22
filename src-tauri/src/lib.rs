@@ -1,4 +1,4 @@
-use tauri::{menu::*, Manager};
+use tauri::{menu::*, Manager, Emitter};
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -18,6 +18,17 @@ fn create_korean_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>>
         .item(
             &SubmenuBuilder::new(app, "파일")
                 .item(&MenuItemBuilder::new("윈도우 닫기").id("close").accelerator("CmdOrCtrl+W").build(app)?)
+                .build()?
+        )
+        .item(
+            &SubmenuBuilder::new(app, "편집")
+                .item(&MenuItemBuilder::new("실행 취소").id("undo").accelerator("CmdOrCtrl+Z").build(app)?)
+                .item(&MenuItemBuilder::new("다시 실행").id("redo").accelerator("CmdOrCtrl+Shift+Z").build(app)?)
+                .separator()
+                .item(&MenuItemBuilder::new("잘라내기").id("cut").accelerator("CmdOrCtrl+X").build(app)?)
+                .item(&MenuItemBuilder::new("복사").id("copy").accelerator("CmdOrCtrl+C").build(app)?)
+                .item(&MenuItemBuilder::new("붙여넣기").id("paste").accelerator("CmdOrCtrl+V").build(app)?)
+                .item(&MenuItemBuilder::new("모두 선택").id("select_all").accelerator("CmdOrCtrl+A").build(app)?)
                 .build()?
         )
         .build()?;
@@ -60,6 +71,36 @@ pub fn run() {
                 "fullscreen" => {
                     if let Some(window) = app.get_webview_window("main") {
                         let _ = window.set_fullscreen(!window.is_fullscreen().unwrap_or(false));
+                    }
+                }
+                "undo" => {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.emit("menu-undo", ());
+                    }
+                }
+                "redo" => {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.emit("menu-redo", ());
+                    }
+                }
+                "cut" => {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.emit("menu-cut", ());
+                    }
+                }
+                "copy" => {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.emit("menu-copy", ());
+                    }
+                }
+                "paste" => {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.emit("menu-paste", ());
+                    }
+                }
+                "select_all" => {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.emit("menu-select-all", ());
                     }
                 }
                 _ => {}
