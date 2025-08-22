@@ -418,6 +418,11 @@ export default function DailyWorkForm() {
   };
 
   const addTask = () => {
+    if (formData.tasks.length >= 8) {
+      alert("업무는 최대 8개까지 추가할 수 있습니다.");
+      return;
+    }
+
     const newTask: WorkTask = {
       id: Date.now().toString(),
       description: "",
