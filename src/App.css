@@ -9,6 +9,10 @@
   src: url("/src/fonts/PretendardVariable.woff2") format("woff2-variations");
 }
 
+html {
+  overscroll-behavior-x: none;
+}
+
 html,
 body,
 * {
