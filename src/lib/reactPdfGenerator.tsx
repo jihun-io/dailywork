@@ -298,8 +298,7 @@ export async function generateReactPDF(data: DailyWorkData) {
 
       // 파일 저장
       await writeFile(filePath, uint8Array);
-      
-      console.log('PDF 파일이 성공적으로 저장되었습니다:', filePath);
+      alert('PDF 파일이 성공적으로 저장되었습니다!');
       return true;
     }
     
