@@ -40,6 +40,8 @@ fn create_korean_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>>
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
         .setup(|app| {
             let menu = create_korean_menu(app.handle())?;
             app.set_menu(menu)?;
