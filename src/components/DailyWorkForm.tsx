@@ -672,7 +672,6 @@ export default function DailyWorkForm() {
                           tabIndex={-1}
                           onClick={openModalWithDepartmentFocus}
                           className={styles.flexibleInput}
-                          style={{ cursor: 'pointer' }}
                         />
                       </Field>
                     </div>
@@ -689,7 +688,6 @@ export default function DailyWorkForm() {
                           tabIndex={-1}
                           onClick={openModalWithNameFocus}
                           className={styles.flexibleInput}
-                          style={{ cursor: 'pointer' }}
                         />
                       </Field>
                     </div>
