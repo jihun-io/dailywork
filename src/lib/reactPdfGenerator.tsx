@@ -1,20 +1,28 @@
-import React from 'react';
-import { Document, Page, Text, View, StyleSheet, pdf, Font } from '@react-pdf/renderer';
-import { DailyWorkData } from '../types/dailyWork';
+import React from "react";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  pdf,
+  Font,
+} from "@react-pdf/renderer";
+import { DailyWorkData } from "../types/dailyWork";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 
 // 한글 폰트 등록
 Font.register({
-  family: 'Pretendard',
+  family: "Pretendard",
   fonts: [
     {
-      src: '/Pretendard-Regular.ttf',
-      fontWeight: 'normal',
+      src: "/Pretendard-Regular.ttf",
+      fontWeight: "normal",
     },
     {
-      src: '/Pretendard-Bold.ttf',
-      fontWeight: 'bold',
+      src: "/Pretendard-Bold.ttf",
+      fontWeight: "bold",
     },
   ],
 });
@@ -22,34 +30,36 @@ Font.register({
 // PDF 스타일 정의
 const styles = StyleSheet.create({
   page: {
-    flexDirection: 'column',
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    fontFamily: 'Pretendard',
+    flexDirection: "column",
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: "20mm",
+    paddingVertical: "15mm",
+    fontFamily: "Pretendard",
     fontSize: 10,
-    color: '#000000',
+    color: "#000000",
   },
   header: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
     padding: 15,
     marginBottom: 20,
     borderRadius: 8,
-    border: '1px solid #e9ecef',
+    border: "1px solid #e9ecef",
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 10,
-    color: '#0066cc',
+    color: "#0066cc",
   },
   infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 8,
+    fontSize: 12,
   },
   infoLabel: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     minWidth: 60,
   },
   infoValue: {
@@ -61,115 +71,121 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
-    color: '#333333',
-    backgroundColor: '#f1f3f4',
+    color: "#333333",
+    backgroundColor: "#f1f3f4",
     padding: 8,
     borderRadius: 4,
   },
   taskCard: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e0e0e0',
+    backgroundColor: "#ffffff",
+    border: "1px solid #e0e0e0",
     borderRadius: 6,
     padding: 12,
     marginBottom: 10,
   },
   taskHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
-  taskNumber: {
+  taskNumberWrapper: {
     width: 24,
     height: 24,
-    backgroundColor: '#0066cc',
-    color: '#ffffff',
+    backgroundColor: "#0066cc",
+    color: "#ffffff",
     borderRadius: 12,
-    textAlign: 'center',
-    lineHeight: 24,
+    textAlign: "center",
     marginRight: 10,
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  taskNumber: {
+    fontSize: 10,
+    fontWeight: "bold",
   },
   taskNumberCompleted: {
-    backgroundColor: '#28a745',
+    backgroundColor: "#28a745",
   },
   taskDescription: {
     flex: 1,
     fontSize: 11,
-    fontWeight: 'bold',
   },
   taskStatus: {
     fontSize: 9,
-    color: '#666666',
+    color: "#666666",
   },
   taskNotes: {
     marginTop: 6,
     fontSize: 9,
-    color: '#666666',
-    backgroundColor: '#f8f9fa',
+    color: "#666666",
+    backgroundColor: "#f8f9fa",
     padding: 6,
     borderRadius: 3,
   },
   specialNotes: {
-    backgroundColor: '#fff3cd',
-    border: '1px solid #ffeaa7',
+    backgroundColor: "#fff3cd",
+    border: "1px solid #ffeaa7",
     borderRadius: 6,
     padding: 12,
   },
   specialNotesTitle: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 6,
-    color: '#856404',
+    color: "#856404",
   },
   specialNotesContent: {
     fontSize: 10,
     lineHeight: 1.4,
-    color: '#856404',
+    color: "#856404",
   },
   timeSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#f8f9fa',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "#f8f9fa",
     padding: 10,
     borderRadius: 6,
     marginBottom: 15,
   },
   timeInfo: {
-    textAlign: 'center',
+    textAlign: "center",
   },
   timeLabel: {
     fontSize: 9,
-    color: '#666666',
+    color: "#666666",
     marginBottom: 3,
   },
   timeValue: {
     fontSize: 12,
-    fontWeight: 'bold',
-    color: '#333333',
+    fontWeight: "bold",
+    color: "#333333",
   },
   divider: {
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: "#e0e0e0",
     marginVertical: 15,
   },
   footer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     left: 20,
     right: 20,
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 8,
-    color: '#999999',
+    color: "#999999",
   },
 });
 
 // PDF 문서 컴포넌트
 const DailyWorkPDF: React.FC<{ data: DailyWorkData }> = ({ data }) => {
-  const completedTasks = data.tasks.filter(task => task.completed).length;
+  const completedTasks = data.tasks.filter((task) => task.completed).length;
   const totalTasks = data.tasks.length;
-  const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const completionRate =
+    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   return (
     <Document>
@@ -212,24 +228,27 @@ const DailyWorkPDF: React.FC<{ data: DailyWorkData }> = ({ data }) => {
           <Text style={styles.sectionTitle}>
             업무 목록 ({completedTasks}/{totalTasks} 완료)
           </Text>
-          
+
           {data.tasks.map((task, index) => (
             <View key={task.id} style={styles.taskCard}>
               <View style={styles.taskHeader}>
-                <Text style={task.completed 
-                  ? [styles.taskNumber, styles.taskNumberCompleted]
-                  : styles.taskNumber
-                }>
-                  {index + 1}
-                </Text>
+                <View
+                  style={
+                    task.completed
+                      ? [styles.taskNumberWrapper, styles.taskNumberCompleted]
+                      : styles.taskNumberWrapper
+                  }
+                >
+                  <Text>{index + 1}</Text>
+                </View>
                 <Text style={styles.taskDescription}>
-                  {task.description || '업무 내용이 입력되지 않았습니다.'}
+                  {task.description || "업무 내용이 입력되지 않았습니다."}
                 </Text>
                 <Text style={styles.taskStatus}>
-                  {task.completed ? '✓ 완료' : '○ 진행중'}
+                  {task.completed ? "✓ 완료" : "○ 진행 중"}
                 </Text>
               </View>
-              
+
               {task.notes && (
                 <View style={styles.taskNotes}>
                   <Text>{task.notes}</Text>
@@ -251,12 +270,9 @@ const DailyWorkPDF: React.FC<{ data: DailyWorkData }> = ({ data }) => {
           </View>
         )}
 
-        {/* 구분선 */}
-        <View style={styles.divider} />
-
         {/* 푸터 */}
         <Text style={styles.footer}>
-          {new Date().toLocaleString('ko-KR')} | dailywork
+          {new Date().toLocaleString("ko-KR")} | dailywork
         </Text>
       </Page>
     </Document>
@@ -298,10 +314,10 @@ export async function generateReactPDF(data: DailyWorkData) {
 
       // 파일 저장
       await writeFile(filePath, uint8Array);
-      alert('PDF 파일이 성공적으로 저장되었습니다!');
+      alert("PDF 파일이 성공적으로 저장되었습니다!");
       return true;
     }
-    
+
     return false;
   } catch (error) {
     console.error("React PDF 생성 중 오류:", error);
