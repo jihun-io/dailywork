@@ -50,6 +50,7 @@ import { DailyWorkData, WorkTask } from "../types/dailyWork";
 import { generateExcelFile } from "../lib/excelGenerator";
 import { generateReactPDF } from "../lib/reactPdfGenerator";
 import { saveUserInfo, loadUserInfo, UserInfo } from "../lib/autoFill";
+import { TextLogo } from "./Logo";
 
 // 우클릭 방지 핸들러
 function handleRightClick(e: React.MouseEvent) {
@@ -516,7 +517,7 @@ export default function DailyWorkForm() {
         <div className={styles.mainContent}>
           <header className={styles.header}>
             <div className={styles.headerLeft}>
-              <Text className={styles.title}>dailywork</Text>
+              <TextLogo height="32" />
             </div>
             <div className={styles.headerActions}>
               {isLoading && <Spinner size="small" />}
@@ -759,16 +760,14 @@ export default function DailyWorkForm() {
                           </Field>
                         </div>
                       </div>
-                      <div
-                        style={{ display: "flex", justifyContent: "end" }}
-                      >
+                      <div style={{ display: "flex", justifyContent: "end" }}>
                         <Checkbox
                           checked={formData.halfDay}
                           onChange={(_, data) =>
                             setFormData((prev) => ({
                               ...prev,
                               halfDay: !!data.checked,
-                              oasis: !!data.checked ? false : prev.oasis
+                              oasis: !!data.checked ? false : prev.oasis,
                             }))
                           }
                           label="반차"
@@ -780,7 +779,7 @@ export default function DailyWorkForm() {
                             setFormData((prev) => ({
                               ...prev,
                               oasis: !!data.checked,
-                              halfDay: !!data.checked ? false : prev.halfDay
+                              halfDay: !!data.checked ? false : prev.halfDay,
                             }))
                           }
                           label="오아시스"
