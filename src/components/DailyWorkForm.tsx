@@ -265,7 +265,7 @@ const useStyles = makeStyles({
   taskFieldContainer: {
     display: "flex",
     flexDirection: "column",
-    gap: tokens.spacingVerticalL,
+    gap: tokens.spacingVerticalXXS,
   },
   taskBottomSection: {
     display: "grid",
