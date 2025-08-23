@@ -215,7 +215,7 @@ const DailyWorkPDF: React.FC<{ data: DailyWorkData }> = ({ data }) => {
           </View>
           <View style={styles.timeInfo}>
             <Text style={styles.timeLabel}>종료 시간</Text>
-            <Text style={styles.timeValue}>{data.endTime}</Text>
+            <Text style={styles.timeValue}>{data.endTime}{data.halfDay ? ' (반차)' : data.oasis ? ' (오아시스)' : ''}</Text>
           </View>
           <View style={styles.timeInfo}>
             <Text style={styles.timeLabel}>완료율</Text>

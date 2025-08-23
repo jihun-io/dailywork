@@ -157,7 +157,7 @@ const useStyles = makeStyles({
   firstRow: {
     display: "flex",
     gap: tokens.spacingHorizontalXL,
-    alignItems: "end",
+    alignItems: "start",
   },
   dateField: {
     flex: 1,
@@ -343,6 +343,8 @@ export default function DailyWorkForm() {
     department: "",
     startTime: "09:00",
     endTime: "18:00",
+    halfDay: false,
+    oasis: false,
     tasks: [
       {
         id: "1",
@@ -602,7 +604,9 @@ export default function DailyWorkForm() {
                     appearance="primary"
                     size="large"
                     icon={<Save20Regular />}
-                    menuIcon={<ChevronDown16Regular style={{display: "block"}} />}
+                    menuIcon={
+                      <ChevronDown16Regular style={{ display: "block" }} />
+                    }
                     className={styles.saveButton}
                     disabled={isLoading}
                   >
@@ -642,68 +646,6 @@ export default function DailyWorkForm() {
               </div>
               <div className={styles.cardContent}>
                 <div className={styles.flexContainer}>
-                  <div className={styles.firstRow}>
-                    <div
-                      className={`${styles.enhancedField} ${styles.dateField}`}
-                    >
-                      <Field label="작성일자" required>
-                        <Input
-                          type="date"
-                          value={formData.date}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              date: e.target.value,
-                            }))
-                          }
-                          size="large"
-                          contentBefore={
-                            <Calendar20Regular className="field-icon" />
-                          }
-                        />
-                      </Field>
-                    </div>
-                    <div
-                      className={`${styles.enhancedField} ${styles.timeField}`}
-                    >
-                      <Field label="시작 시간" required>
-                        <Input
-                          type="time"
-                          value={formData.startTime}
-                          contentBefore={
-                            <Clock20Regular className="field-icon" />
-                          }
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              startTime: e.target.value,
-                            }))
-                          }
-                          size="large"
-                        />
-                      </Field>
-                    </div>
-                    <div
-                      className={`${styles.enhancedField} ${styles.timeField}`}
-                    >
-                      <Field label="종료 시간" required>
-                        <Input
-                          type="time"
-                          value={formData.endTime}
-                          contentBefore={
-                            <Clock20Regular className="field-icon" />
-                          }
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              endTime: e.target.value,
-                            }))
-                          }
-                          size="large"
-                        />
-                      </Field>
-                    </div>
-                  </div>
                   <div className={styles.secondRow}>
                     <div
                       className={`${styles.enhancedField} ${styles.equalField}`}
@@ -740,6 +682,111 @@ export default function DailyWorkForm() {
                           className={styles.flexibleInput}
                         />
                       </Field>
+                    </div>
+                  </div>
+                  <div className={styles.firstRow}>
+                    <div
+                      className={`${styles.enhancedField} ${styles.dateField}`}
+                    >
+                      <Field label="작성일자" required>
+                        <Input
+                          type="date"
+                          value={formData.date}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              date: e.target.value,
+                            }))
+                          }
+                          size="large"
+                          contentBefore={
+                            <Calendar20Regular className="field-icon" />
+                          }
+                        />
+                      </Field>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: tokens.spacingVerticalM,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: tokens.spacingHorizontalL,
+                        }}
+                      >
+                        <div
+                          className={`${styles.enhancedField} ${styles.timeField}`}
+                        >
+                          <Field label="시작 시간" required>
+                            <Input
+                              type="time"
+                              value={formData.startTime}
+                              contentBefore={
+                                <Clock20Regular className="field-icon" />
+                              }
+                              onChange={(e) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  startTime: e.target.value,
+                                }))
+                              }
+                              size="large"
+                            />
+                          </Field>
+                        </div>
+                        <div
+                          className={`${styles.enhancedField} ${styles.timeField}`}
+                        >
+                          <Field label="종료 시간" required>
+                            <Input
+                              type="time"
+                              value={formData.endTime}
+                              contentBefore={
+                                <Clock20Regular className="field-icon" />
+                              }
+                              onChange={(e) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  endTime: e.target.value,
+                                }))
+                              }
+                              size="large"
+                            />
+                          </Field>
+                        </div>
+                      </div>
+                      <div
+                        style={{ display: "flex", justifyContent: "end" }}
+                      >
+                        <Checkbox
+                          checked={formData.halfDay}
+                          onChange={(_, data) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              halfDay: !!data.checked,
+                              oasis: !!data.checked ? false : prev.oasis
+                            }))
+                          }
+                          label="반차"
+                          size="large"
+                        />
+                        <Checkbox
+                          checked={formData.oasis}
+                          onChange={(_, data) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              oasis: !!data.checked,
+                              halfDay: !!data.checked ? false : prev.halfDay
+                            }))
+                          }
+                          label="오아시스"
+                          size="large"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -4,6 +4,8 @@ export interface DailyWorkData {
   department: string;
   startTime: string;
   endTime: string;
+  halfDay: boolean;
+  oasis: boolean;
   tasks: WorkTask[];
   specialNotes: string;
 }
