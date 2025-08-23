@@ -117,6 +117,7 @@ const useStyles = makeStyles({
     overflow: "auto",
     padding: `${tokens.spacingVerticalXXL} ${tokens.spacingHorizontalXXL}`,
     backgroundColor: tokens.colorNeutralBackground3,
+    overscrollBehaviorY: "contain",
   },
   card: {
     marginBottom: tokens.spacingVerticalXL,
