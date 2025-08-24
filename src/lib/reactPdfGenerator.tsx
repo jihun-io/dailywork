@@ -7,6 +7,7 @@ import {
   StyleSheet,
   pdf,
   Font,
+  Image,
 } from "@react-pdf/renderer";
 import { DailyWorkData } from "../types/dailyWork";
 import { save } from "@tauri-apps/plugin-dialog";
@@ -46,12 +47,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     border: "1px solid #e9ecef",
   },
+  titleRow: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    textAlign: "center",
+    textAlign: "left",
     marginBottom: 10,
-    color: "#0066cc",
   },
   infoRow: {
     flexDirection: "row",
@@ -93,12 +99,9 @@ const styles = StyleSheet.create({
   taskNumberWrapper: {
     width: 24,
     height: 24,
-    backgroundColor: "#0066cc",
-    color: "#ffffff",
-    borderRadius: 12,
     textAlign: "center",
     marginRight: 10,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: "bold",
     display: "flex",
     justifyContent: "center",
@@ -107,9 +110,6 @@ const styles = StyleSheet.create({
   taskNumber: {
     fontSize: 10,
     fontWeight: "bold",
-  },
-  taskNumberCompleted: {
-    backgroundColor: "#28a745",
   },
   taskDescription: {
     flex: 1,
@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   specialNotes: {
-    backgroundColor: "#fff3cd",
-    border: "1px solid #ffeaa7",
+    backgroundColor: "#fefefe",
+    border: "1px solid #e8e8e8",
     borderRadius: 6,
     padding: 12,
   },
@@ -137,12 +137,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "bold",
     marginBottom: 6,
-    color: "#856404",
+    color: "#2d2d2d",
   },
   specialNotesContent: {
     fontSize: 10,
     lineHeight: 1.4,
-    color: "#856404",
+    color: "#333333",
   },
   timeSection: {
     flexDirection: "row",
@@ -193,10 +193,20 @@ const DailyWorkPDF: React.FC<{ data: DailyWorkData }> = ({ data }) => {
       <Page size="A4" style={styles.page}>
         {/* 헤더 정보 */}
         <View style={styles.header}>
-          <Text style={styles.title}>일일 업무 일지</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.title}>일일 업무 일지</Text>
+            <Image
+              src="/text-logo.png"
+              style={{
+                height: 20,
+              }}
+            />
+          </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>작성일:</Text>
-            <Text style={styles.infoValue}>{formatDateToKorean(normalizeDate(data.date))}</Text>
+            <Text style={styles.infoValue}>
+              {formatDateToKorean(normalizeDate(data.date))}
+            </Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>성명:</Text>
@@ -216,7 +226,10 @@ const DailyWorkPDF: React.FC<{ data: DailyWorkData }> = ({ data }) => {
           </View>
           <View style={styles.timeInfo}>
             <Text style={styles.timeLabel}>종료 시간</Text>
-            <Text style={styles.timeValue}>{data.endTime}{data.halfDay ? ' (반차)' : data.oasis ? ' (오아시스)' : ''}</Text>
+            <Text style={styles.timeValue}>
+              {data.endTime}
+              {data.halfDay ? " (반차)" : data.oasis ? " (오아시스)" : ""}
+            </Text>
           </View>
           <View style={styles.timeInfo}>
             <Text style={styles.timeLabel}>완료율</Text>
@@ -226,20 +239,12 @@ const DailyWorkPDF: React.FC<{ data: DailyWorkData }> = ({ data }) => {
 
         {/* 업무 목록 */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            업무 목록
-          </Text>
+          <Text style={styles.sectionTitle}>업무 목록</Text>
 
           {data.tasks.map((task, index) => (
             <View key={task.id} style={styles.taskCard}>
               <View style={styles.taskHeader}>
-                <View
-                  style={
-                    task.completed
-                      ? [styles.taskNumberWrapper, styles.taskNumberCompleted]
-                      : styles.taskNumberWrapper
-                  }
-                >
+                <View style={styles.taskNumberWrapper}>
                   <Text>{index + 1}</Text>
                 </View>
                 <Text style={styles.taskDescription}>
@@ -281,7 +286,10 @@ const DailyWorkPDF: React.FC<{ data: DailyWorkData }> = ({ data }) => {
 };
 
 // PDF 생성 및 저장 함수
-export async function generateReactPDF(data: DailyWorkData, customFilename?: string) {
+export async function generateReactPDF(
+  data: DailyWorkData,
+  customFilename?: string
+) {
   try {
     // PDF 문서 생성
     const doc = <DailyWorkPDF data={data} />;
@@ -293,7 +301,9 @@ export async function generateReactPDF(data: DailyWorkData, customFilename?: str
     };
 
     // 파일명 생성 - 커스텀 파일명이 있으면 사용, 없으면 기본값
-    const defaultFilename = customFilename || `${formatDateForFilename(data.date)} 일일업무일지_${data.name}.pdf`;
+    const defaultFilename =
+      customFilename ||
+      `${formatDateForFilename(data.date)} 일일업무일지_${data.name}.pdf`;
 
     // 사용자에게 저장 위치 선택하게 하기
     const filePath = await save({

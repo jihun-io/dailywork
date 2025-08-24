@@ -152,8 +152,11 @@ export default function DailyWorkForm() {
   };
 
   const handleExportClick = (type: "pdf" | "excel") => {
-    setPendingExportType(type);
-    setFileNameCustomizerOpen(true);
+    if (type === "pdf") {
+      handleExportReactPDF();
+    } else if (type === "excel") {
+      handleExportExcel();
+    }
   };
 
   const handleFileNameConfirm = (filename: string) => {
