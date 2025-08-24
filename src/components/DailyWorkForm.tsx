@@ -215,8 +215,9 @@ export default function DailyWorkForm() {
                 icon={<FolderOpen20Regular />}
                 onClick={handleImportExcel}
                 disabled={isLoading || isImporting}
+                data-test-id="open-button"
               >
-                {isImporting ? "불러오는 중..." : "열기"}
+                열기
               </Button>
 
               <Menu>
@@ -230,8 +231,9 @@ export default function DailyWorkForm() {
                     }
                     className={styles.saveButton}
                     disabled={isLoading || isImporting}
+                    data-test-id="save-button"
                   >
-                    {isLoading ? "저장 중..." : "저장"}
+                    저장
                   </MenuButton>
                 </MenuTrigger>
                 <MenuPopover>
@@ -247,6 +249,7 @@ export default function DailyWorkForm() {
                       icon={<DocumentTable20Regular />}
                       onClick={handleExportExcel}
                       disabled={isLoading || isImporting}
+                      data-test-id="export-excel-menuitem"
                     >
                       엑셀 파일 저장
                     </MenuItem>
