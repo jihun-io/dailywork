@@ -227,7 +227,7 @@ const DailyWorkPDF: React.FC<{ data: DailyWorkData }> = ({ data }) => {
         {/* 업무 목록 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            업무 목록 ({completedTasks}/{totalTasks} 완료)
+            업무 목록
           </Text>
 
           {data.tasks.map((task, index) => (
