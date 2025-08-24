@@ -219,7 +219,7 @@ interface FileNameCustomizerProps {
 
 const AVAILABLE_BLOCKS: FileNameBlock[] = [
   { id: "text-template", type: "text", content: "텍스트" },
-  { id: "name-template", type: "name", content: "이름" },
+  { id: "name-template", type: "name", content: "작성자" },
   { id: "date-template", type: "date", content: "날짜" },
 ];
 
@@ -324,7 +324,7 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
   const [fileNameBlocks, setFileNameBlocks] = useState<FileNameBlock[]>([
     { id: "1", type: "date", content: "날짜" },
     { id: "2", type: "text", content: " 일일업무일지_" },
-    { id: "3", type: "name", content: "이름" },
+    { id: "3", type: "name", content: "작성자" },
   ]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dateFormat, setDateFormat] = useState<"yyyy-mm-dd" | "yyyymmdd" | "dateString">("yyyymmdd");
@@ -399,7 +399,7 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
 
   const handleAddBlock = (type: FileNameBlock["type"]) => {
     const templateContent =
-      type === "text" ? "텍스트" : type === "name" ? "이름" : "날짜";
+      type === "text" ? "텍스트" : type === "name" ? "작성자" : "날짜";
     const newBlock: FileNameBlock = {
       id: `${Date.now()}-${Math.random()}`,
       type: type,
@@ -426,7 +426,7 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
     setFileNameBlocks([
       { id: "1", type: "date", content: "날짜" },
       { id: "2", type: "text", content: " 일일업무일지_" },
-      { id: "3", type: "name", content: "이름" },
+      { id: "3", type: "name", content: "작성자" },
     ]);
   };
 
