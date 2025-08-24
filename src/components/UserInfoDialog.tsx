@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import {
   Dialog,
-  DialogTrigger,
   DialogSurface,
   DialogBody,
   DialogTitle,
@@ -11,13 +10,8 @@ import {
   Input,
   Field,
   tokens,
-  Tooltip,
 } from "@fluentui/react-components";
-import {
-  Settings20Regular,
-  Person20Regular,
-  Building20Regular,
-} from "@fluentui/react-icons";
+import { Person20Regular, Building20Regular } from "@fluentui/react-icons";
 import { DailyWorkData } from "../types/dailyWork";
 import { focusInputWithDelay } from "./utils/userInfoUtils";
 
@@ -44,7 +38,8 @@ export function UserInfoDialog({
   const handleOpenChange = (open: boolean) => {
     onOpenChange(open);
     if (open && focusTarget) {
-      const ref = focusTarget === "department" ? departmentInputRef : nameInputRef;
+      const ref =
+        focusTarget === "department" ? departmentInputRef : nameInputRef;
       focusInputWithDelay(ref);
     }
   };
@@ -55,18 +50,10 @@ export function UserInfoDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(_, data) => handleOpenChange(data.open)}>
-      <DialogTrigger disableButtonEnhancement>
-        <Tooltip content="사용자 정보 설정" relationship="label">
-          <Button
-            appearance="subtle"
-            size="large"
-            icon={<Settings20Regular />}
-          >
-            설정
-          </Button>
-        </Tooltip>
-      </DialogTrigger>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(_, data) => handleOpenChange(data.open)}
+    >
       <DialogSurface>
         <DialogBody>
           <DialogTitle>사용자 정보 설정</DialogTitle>
@@ -84,9 +71,7 @@ export function UserInfoDialog({
                   placeholder="이름을 입력하세요"
                   value={formData.name}
                   contentBefore={<Person20Regular />}
-                  onChange={(e) =>
-                    onFormDataChange({ name: e.target.value })
-                  }
+                  onChange={(e) => onFormDataChange({ name: e.target.value })}
                   size="large"
                 />
               </Field>
@@ -105,13 +90,10 @@ export function UserInfoDialog({
             </div>
           </DialogContent>
           <DialogActions>
-            <DialogTrigger disableButtonEnhancement>
-              <Button appearance="secondary">취소</Button>
-            </DialogTrigger>
-            <Button
-              appearance="primary"
-              onClick={handleSaveAndClose}
-            >
+            <Button appearance="secondary" onClick={() => onOpenChange(false)}>
+              취소
+            </Button>
+            <Button appearance="primary" onClick={handleSaveAndClose}>
               저장
             </Button>
           </DialogActions>

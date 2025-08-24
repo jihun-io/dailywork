@@ -17,6 +17,9 @@ import {
   Save20Regular,
   DocumentTable20Regular,
   FolderOpen20Regular,
+  Settings20Regular,
+  Edit20Regular,
+  TextBulletListLtr20Regular,
 } from "@fluentui/react-icons";
 import { DailyWorkData, WorkTask } from "../types/dailyWork";
 import { generateExcelFile } from "../lib/excelGenerator";
@@ -43,6 +46,7 @@ import { UserInfoDialog } from "./UserInfoDialog";
 import { BasicInfoCard } from "./BasicInfoCard";
 import { TaskCard } from "./TaskCard";
 import { SpecialNotesCard } from "./SpecialNotesCard";
+import { FileNameCustomizer } from "./FileNameCustomizer";
 
 export default function DailyWorkForm() {
   const styles = useStyles();
@@ -70,7 +74,13 @@ export default function DailyWorkForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [userDialogOpen, setUserDialogOpen] = useState(false);
-  const [dialogFocusTarget, setDialogFocusTarget] = useState<"department" | "name" | undefined>();
+  const [dialogFocusTarget, setDialogFocusTarget] = useState<
+    "department" | "name" | undefined
+  >();
+  const [fileNameCustomizerOpen, setFileNameCustomizerOpen] = useState(false);
+  const [pendingExportType, setPendingExportType] = useState<
+    "pdf" | "excel" | null
+  >(null);
 
   useEffect(() => {
     loadUserInfoToForm(setFormData);
@@ -119,10 +129,10 @@ export default function DailyWorkForm() {
     setFormData((prev) => ({ ...prev, ...updates }));
   };
 
-  const handleExportExcel = async () => {
+  const handleExportExcel = async (customFilename?: string) => {
     setIsLoading(true);
     try {
-      await generateExcelFile(formData);
+      await generateExcelFile(formData, customFilename);
     } catch (error) {
       console.error("엑셀 파일 생성 중 오류:", error);
     } finally {
@@ -130,10 +140,10 @@ export default function DailyWorkForm() {
     }
   };
 
-  const handleExportReactPDF = async () => {
+  const handleExportReactPDF = async (customFilename?: string) => {
     setIsLoading(true);
     try {
-      await generateReactPDF(formData);
+      await generateReactPDF(formData, customFilename);
     } catch (error) {
       console.error("React PDF 파일 생성 중 오류:", error);
     } finally {
@@ -141,23 +151,43 @@ export default function DailyWorkForm() {
     }
   };
 
+  const handleExportClick = (type: "pdf" | "excel") => {
+    setPendingExportType(type);
+    setFileNameCustomizerOpen(true);
+  };
+
+  const handleFileNameConfirm = (filename: string) => {
+    if (pendingExportType === "pdf") {
+      handleExportReactPDF(filename);
+    } else if (pendingExportType === "excel") {
+      handleExportExcel(filename);
+    }
+    setPendingExportType(null);
+  };
+
+  const handleFileNameSettings = () => {
+    setPendingExportType(null); // 파일명 설정만 열기
+    setFileNameCustomizerOpen(true);
+  };
+
   const handleImportExcel = async () => {
     console.log("엑셀 파일 불러오기 시작");
-    
+
     // 현재 폼에 데이터가 있는지 확인
-    const hasExistingData =  formData.tasks.some(task => task.description.trim()) || formData.specialNotes.trim();
+    const hasExistingData =
+      formData.tasks.some((task) => task.description.trim()) ||
+      formData.specialNotes.trim();
 
     let shouldProceed = true;
-    
+
     if (hasExistingData) {
       console.log("기존 데이터 존재, 사용자 확인 요청");
       shouldProceed = await ask(
-        "새 파일을 불러오면 현재 내용이 사라집니다.\n" +
-        "계속하시겠습니까?",
+        "새 파일을 불러오면 현재 내용이 사라집니다.\n" + "계속하시겠습니까?",
         {
           kind: "warning",
           okLabel: "열기",
-          cancelLabel: "취소"
+          cancelLabel: "취소",
         }
       );
       console.log("사용자 확인 결과:", shouldProceed);
@@ -209,6 +239,62 @@ export default function DailyWorkForm() {
                 focusTarget={dialogFocusTarget}
               />
 
+              <FileNameCustomizer
+                isOpen={fileNameCustomizerOpen}
+                onOpenChange={setFileNameCustomizerOpen}
+                onConfirm={handleFileNameConfirm}
+                defaultExtension={
+                  pendingExportType === "pdf"
+                    ? ".pdf"
+                    : pendingExportType === "excel"
+                      ? ".xlsx"
+                      : ".pdf"
+                }
+                formData={formData}
+                title={
+                  pendingExportType === "pdf"
+                    ? "PDF"
+                    : pendingExportType === "excel"
+                      ? "엑셀"
+                      : "파일명"
+                }
+                isSettingsMode={pendingExportType === null}
+              />
+
+              <Menu>
+                <MenuTrigger disableButtonEnhancement>
+                  <MenuButton
+                    appearance="subtle"
+                    size="large"
+                    icon={<Settings20Regular />}
+                    menuIcon={
+                      <ChevronDown16Regular style={{ display: "block" }} />
+                    }
+                    disabled={isLoading || isImporting}
+                  >
+                    설정
+                  </MenuButton>
+                </MenuTrigger>
+                <MenuPopover>
+                  <MenuList>
+                    <MenuItem
+                      icon={<Edit20Regular />}
+                      onClick={() => setUserDialogOpen(true)}
+                      disabled={isLoading || isImporting}
+                    >
+                      사용자 정보 설정
+                    </MenuItem>
+                    <MenuItem
+                      icon={<TextBulletListLtr20Regular />}
+                      onClick={handleFileNameSettings}
+                      disabled={isLoading || isImporting}
+                    >
+                      파일 이름 설정
+                    </MenuItem>
+                  </MenuList>
+                </MenuPopover>
+              </Menu>
+
               <Button
                 appearance="subtle"
                 size="large"
@@ -240,14 +326,14 @@ export default function DailyWorkForm() {
                   <MenuList>
                     <MenuItem
                       icon={<DocumentPdf20Regular />}
-                      onClick={handleExportReactPDF}
+                      onClick={() => handleExportClick("pdf")}
                       disabled={isLoading || isImporting}
                     >
                       PDF로 내보내기
                     </MenuItem>
                     <MenuItem
                       icon={<DocumentTable20Regular />}
-                      onClick={handleExportExcel}
+                      onClick={() => handleExportClick("excel")}
                       disabled={isLoading || isImporting}
                       data-test-id="export-excel-menuitem"
                     >

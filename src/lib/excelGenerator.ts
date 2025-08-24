@@ -4,7 +4,7 @@ import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { normalizeDate } from "../utils/dateUtils";
 
-export async function generateExcelFile(data: DailyWorkData) {
+export async function generateExcelFile(data: DailyWorkData, customFilename?: string) {
   try {
     // 템플릿 파일 로드 (public 폴더에서)
     const templatePath = "/daily-work.xlsx";
@@ -24,6 +24,11 @@ export async function generateExcelFile(data: DailyWorkData) {
     // 날짜 포맷팅 - 항상 YYYY-MM-DD 형식으로 정규화
     const formatDate = (dateStr: string) => {
       return normalizeDate(dateStr);
+    };
+
+    // 파일명용 날짜 포맷팅 - YYYYMMDD 형식
+    const formatDateForFilename = (dateStr: string) => {
+      return normalizeDate(dateStr).replace(/-/g, "");
     };
 
     // 셀 값 업데이트 (스타일은 보존)
@@ -61,8 +66,8 @@ export async function generateExcelFile(data: DailyWorkData) {
     // 파일을 Buffer로 변환
     const buffer = await workbook.xlsx.writeBuffer();
 
-    // 기본 파일명 생성
-    const defaultFilename = `일일업무일지_${data.name}_${formatDate(data.date)}.xlsx`;
+    // 기본 파일명 생성 - 커스텀 파일명이 있으면 사용, 없으면 기본값
+    const defaultFilename = customFilename || `${formatDateForFilename(data.date)} 일일업무일지_${data.name}.xlsx`;
 
     // 파일 저장 대화상자 열기
     const filePath = await save({
