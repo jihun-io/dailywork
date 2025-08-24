@@ -11,6 +11,7 @@ import {
 import { DailyWorkData } from "../types/dailyWork";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
+import { normalizeDate, formatDateToKorean } from "../utils/dateUtils";
 
 // 한글 폰트 등록
 Font.register({
@@ -195,7 +196,7 @@ const DailyWorkPDF: React.FC<{ data: DailyWorkData }> = ({ data }) => {
           <Text style={styles.title}>일일 업무 일지</Text>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>작성일:</Text>
-            <Text style={styles.infoValue}>{data.date}</Text>
+            <Text style={styles.infoValue}>{formatDateToKorean(normalizeDate(data.date))}</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>성명:</Text>
@@ -286,14 +287,9 @@ export async function generateReactPDF(data: DailyWorkData) {
     const doc = <DailyWorkPDF data={data} />;
     const pdfBlob = await pdf(doc).toBlob();
 
-    // 날짜 포맷팅
-    const formatDate = (dateStr: string) => {
-      const [year, month, day] = dateStr.replaceAll(" ", "").split(".");
-      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-    };
-
-    // 파일명 생성
-    const defaultFilename = `일일업무일지_${data.name}_${formatDate(data.date)}.pdf`;
+    // 파일명 생성 - 날짜를 YYYY-MM-DD 형식으로 정규화
+    const normalizedDate = normalizeDate(data.date);
+    const defaultFilename = `일일업무일지_${data.name}_${normalizedDate}.pdf`;
 
     // 사용자에게 저장 위치 선택하게 하기
     const filePath = await save({
