@@ -9,16 +9,21 @@ import {
   MenuPopover,
   MenuList,
   MenuItem,
+  Button,
 } from "@fluentui/react-components";
 import {
   DocumentPdf20Regular,
   ChevronDown16Regular,
   Save20Regular,
   DocumentTable20Regular,
+  FolderOpen20Regular,
 } from "@fluentui/react-icons";
 import { DailyWorkData, WorkTask } from "../types/dailyWork";
 import { generateExcelFile } from "../lib/excelGenerator";
 import { generateReactPDF } from "../lib/reactPdfGenerator";
+import { importExcelFile } from "../lib/excelImporter";
+import { ask } from "@tauri-apps/plugin-dialog";
+import { getCurrentDateISO } from "../utils/dateUtils";
 import { IconLogo, TextLogo } from "./Logo";
 import { useStyles } from "./styles/DailyWorkForm.styles";
 import { tokens } from "@fluentui/react-components";
@@ -44,7 +49,7 @@ export default function DailyWorkForm() {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState<DailyWorkData>({
-    date: new Date().toLocaleDateString("ko-KR"),
+    date: getCurrentDateISO(),
     name: "",
     department: "",
     startTime: "09:00",
