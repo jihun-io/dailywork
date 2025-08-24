@@ -79,7 +79,6 @@ export async function generateExcelFile(data: DailyWorkData) {
     if (filePath) {
       // Tauri의 writeFile을 사용해서 파일 저장
       await writeFile(filePath, new Uint8Array(buffer));
-      alert("엑셀 파일이 성공적으로 저장되었습니다!");
     }
   } catch (error: any) {
     console.error("Excel 파일 생성 중 오류:", error);
