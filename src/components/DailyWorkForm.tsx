@@ -63,6 +63,7 @@ export default function DailyWorkForm() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [userDialogOpen, setUserDialogOpen] = useState(false);
   const [dialogFocusTarget, setDialogFocusTarget] = useState<"department" | "name" | undefined>();
 
@@ -135,6 +136,52 @@ export default function DailyWorkForm() {
     }
   };
 
+  const handleImportExcel = async () => {
+    console.log("엑셀 파일 불러오기 시작");
+    
+    // 현재 폼에 데이터가 있는지 확인
+    const hasExistingData =  formData.tasks.some(task => task.description.trim()) || formData.specialNotes.trim();
+
+    let shouldProceed = true;
+    
+    if (hasExistingData) {
+      console.log("기존 데이터 존재, 사용자 확인 요청");
+      shouldProceed = await ask(
+        "새 파일을 불러오면 현재 내용이 사라집니다.\n" +
+        "계속하시겠습니까?",
+        {
+          kind: "warning",
+          okLabel: "열기",
+          cancelLabel: "취소"
+        }
+      );
+      console.log("사용자 확인 결과:", shouldProceed);
+    }
+
+    if (!shouldProceed) {
+      console.log("사용자가 취소했습니다.");
+      return;
+    }
+
+    console.log("파일 불러오기 진행");
+    setIsImporting(true);
+    try {
+      const importedData = await importExcelFile();
+      console.log("불러온 데이터:", importedData);
+      if (importedData) {
+        setFormData(importedData);
+        console.log("폼 데이터 업데이트 완료");
+      } else {
+        console.log("불러온 데이터가 없습니다.");
+      }
+    } catch (error) {
+      console.error("Excel 파일 불러오기 중 오류:", error);
+    } finally {
+      setIsImporting(false);
+      console.log("파일 불러오기 완료");
+    }
+  };
+
   return (
     <FluentProvider theme={webLightTheme}>
       <div className={styles.container} onContextMenu={handleRightClick}>
@@ -146,7 +193,7 @@ export default function DailyWorkForm() {
               <TextLogo height={32} color={tokens.colorBrandForeground1} />
             </div>
             <div className={styles.headerActions}>
-              {isLoading && <Spinner size="small" />}
+              {(isLoading || isImporting) && <Spinner size="small" />}
 
               <UserInfoDialog
                 isOpen={userDialogOpen}
@@ -156,6 +203,16 @@ export default function DailyWorkForm() {
                 onSave={handleSaveUserInfo}
                 focusTarget={dialogFocusTarget}
               />
+
+              <Button
+                appearance="subtle"
+                size="large"
+                icon={<FolderOpen20Regular />}
+                onClick={handleImportExcel}
+                disabled={isLoading || isImporting}
+              >
+                {isImporting ? "불러오는 중..." : "열기"}
+              </Button>
 
               <Menu>
                 <MenuTrigger disableButtonEnhancement>
@@ -167,7 +224,7 @@ export default function DailyWorkForm() {
                       <ChevronDown16Regular style={{ display: "block" }} />
                     }
                     className={styles.saveButton}
-                    disabled={isLoading}
+                    disabled={isLoading || isImporting}
                   >
                     {isLoading ? "저장 중..." : "저장"}
                   </MenuButton>
@@ -177,14 +234,14 @@ export default function DailyWorkForm() {
                     <MenuItem
                       icon={<DocumentPdf20Regular />}
                       onClick={handleExportReactPDF}
-                      disabled={isLoading}
+                      disabled={isLoading || isImporting}
                     >
                       PDF로 내보내기
                     </MenuItem>
                     <MenuItem
                       icon={<DocumentTable20Regular />}
                       onClick={handleExportExcel}
-                      disabled={isLoading}
+                      disabled={isLoading || isImporting}
                     >
                       엑셀 파일 저장
                     </MenuItem>
