@@ -19,8 +19,9 @@ import {
 import { DailyWorkData, WorkTask } from "../types/dailyWork";
 import { generateExcelFile } from "../lib/excelGenerator";
 import { generateReactPDF } from "../lib/reactPdfGenerator";
-import { TextLogo } from "./Logo";
+import { IconLogo, TextLogo } from "./Logo";
 import { useStyles } from "./styles/DailyWorkForm.styles";
+import { tokens } from "@fluentui/react-components";
 import {
   moveTask,
   duplicateTask,
@@ -141,7 +142,8 @@ export default function DailyWorkForm() {
         <div className={styles.mainContent}>
           <header className={styles.header}>
             <div className={styles.headerLeft}>
-              <TextLogo height="32" />
+              <IconLogo height={40} />
+              <TextLogo height={32} color={tokens.colorBrandForeground1} />
             </div>
             <div className={styles.headerActions}>
               {isLoading && <Spinner size="small" />}
