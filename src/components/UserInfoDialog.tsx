@@ -11,10 +11,7 @@ import {
   Field,
   tokens,
 } from "@fluentui/react-components";
-import {
-  Person20Regular,
-  Building20Regular,
-} from "@fluentui/react-icons";
+import { Person20Regular, Building20Regular } from "@fluentui/react-icons";
 import { DailyWorkData } from "../types/dailyWork";
 import { focusInputWithDelay } from "./utils/userInfoUtils";
 
@@ -41,7 +38,8 @@ export function UserInfoDialog({
   const handleOpenChange = (open: boolean) => {
     onOpenChange(open);
     if (open && focusTarget) {
-      const ref = focusTarget === "department" ? departmentInputRef : nameInputRef;
+      const ref =
+        focusTarget === "department" ? departmentInputRef : nameInputRef;
       focusInputWithDelay(ref);
     }
   };
@@ -52,7 +50,10 @@ export function UserInfoDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(_, data) => handleOpenChange(data.open)}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(_, data) => handleOpenChange(data.open)}
+    >
       <DialogSurface>
         <DialogBody>
           <DialogTitle>사용자 정보 설정</DialogTitle>
@@ -70,9 +71,7 @@ export function UserInfoDialog({
                   placeholder="이름을 입력하세요"
                   value={formData.name}
                   contentBefore={<Person20Regular />}
-                  onChange={(e) =>
-                    onFormDataChange({ name: e.target.value })
-                  }
+                  onChange={(e) => onFormDataChange({ name: e.target.value })}
                   size="large"
                 />
               </Field>
@@ -94,10 +93,7 @@ export function UserInfoDialog({
             <Button appearance="secondary" onClick={() => onOpenChange(false)}>
               취소
             </Button>
-            <Button
-              appearance="primary"
-              onClick={handleSaveAndClose}
-            >
+            <Button appearance="primary" onClick={handleSaveAndClose}>
               저장
             </Button>
           </DialogActions>
