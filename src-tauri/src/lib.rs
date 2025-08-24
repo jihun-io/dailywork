@@ -57,7 +57,28 @@ pub fn run() {
                     app.exit(0);
                 }
                 "about" => {
-                    // About 다이얼로그 표시
+                    #[cfg(target_os = "macos")]
+                    {
+                        use cocoa::appkit::NSApp;
+                        use cocoa::base::nil;
+                        use objc::{msg_send, sel, sel_impl};
+                        
+                        unsafe {
+                            let app: cocoa::base::id = NSApp();
+                            let _: () = msg_send![app, orderFrontStandardAboutPanel: nil];
+                        }
+                    }
+                    
+                    #[cfg(not(target_os = "macos"))]
+                    {
+                        use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
+                        let _ = app.dialog()
+                            .message("dailywork v0.1.0\n\n© 2025 Jihun Kim. All rights reserved.")
+                            .kind(MessageDialogKind::Info)
+                            .buttons(MessageDialogButtons::Ok)
+                            .title("dailywork에 관하여")
+                            .show(move |_| {});
+                    }
                 }
                 "open" => {
                     if let Some(window) = app.get_webview_window("main") {
