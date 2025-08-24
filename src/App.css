@@ -19,7 +19,7 @@ body,
   font-family: "Pretendard Variable"!important;
 }
 
-button {
+button, input[type=radio], label {
   cursor: default!important;
 }
 
