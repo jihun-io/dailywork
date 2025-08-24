@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import {
   Dialog,
-  DialogTrigger,
   DialogSurface,
   DialogBody,
   DialogTitle,
@@ -11,10 +10,8 @@ import {
   Input,
   Field,
   tokens,
-  Tooltip,
 } from "@fluentui/react-components";
 import {
-  Settings20Regular,
   Person20Regular,
   Building20Regular,
 } from "@fluentui/react-icons";
@@ -56,17 +53,6 @@ export function UserInfoDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(_, data) => handleOpenChange(data.open)}>
-      <DialogTrigger disableButtonEnhancement>
-        <Tooltip content="사용자 정보 설정" relationship="label">
-          <Button
-            appearance="subtle"
-            size="large"
-            icon={<Settings20Regular />}
-          >
-            설정
-          </Button>
-        </Tooltip>
-      </DialogTrigger>
       <DialogSurface>
         <DialogBody>
           <DialogTitle>사용자 정보 설정</DialogTitle>
@@ -105,9 +91,9 @@ export function UserInfoDialog({
             </div>
           </DialogContent>
           <DialogActions>
-            <DialogTrigger disableButtonEnhancement>
-              <Button appearance="secondary">취소</Button>
-            </DialogTrigger>
+            <Button appearance="secondary" onClick={() => onOpenChange(false)}>
+              취소
+            </Button>
             <Button
               appearance="primary"
               onClick={handleSaveAndClose}

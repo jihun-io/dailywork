@@ -281,15 +281,14 @@ const DailyWorkPDF: React.FC<{ data: DailyWorkData }> = ({ data }) => {
 };
 
 // PDF 생성 및 저장 함수
-export async function generateReactPDF(data: DailyWorkData) {
+export async function generateReactPDF(data: DailyWorkData, customFilename?: string) {
   try {
     // PDF 문서 생성
     const doc = <DailyWorkPDF data={data} />;
     const pdfBlob = await pdf(doc).toBlob();
 
-    // 파일명 생성 - 날짜를 YYYY-MM-DD 형식으로 정규화
-    const normalizedDate = normalizeDate(data.date);
-    const defaultFilename = `일일업무일지_${data.name}_${normalizedDate}.pdf`;
+    // 파일명 생성 - 커스텀 파일명이 있으면 사용, 없으면 기본값
+    const defaultFilename = customFilename || `일일업무일지_${data.name}_${normalizeDate(data.date)}.pdf`;
 
     // 사용자에게 저장 위치 선택하게 하기
     const filePath = await save({
