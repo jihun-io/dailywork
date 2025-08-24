@@ -258,7 +258,6 @@ const BlockComponent: React.FC<{
     setNodeRef,
     transform,
     transition,
-    isDragging,
   } = useSortable({ id: block.id });
 
 
