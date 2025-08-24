@@ -2,6 +2,7 @@ import ExcelJS from "exceljs";
 import { DailyWorkData } from "../types/dailyWork";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
+import { normalizeDate } from "../utils/dateUtils";
 
 export async function generateExcelFile(data: DailyWorkData) {
   try {
@@ -20,10 +21,9 @@ export async function generateExcelFile(data: DailyWorkData) {
       throw new Error("워크시트를 찾을 수 없습니다.");
     }
 
-    // 날짜 포맷팅
+    // 날짜 포맷팅 - 항상 YYYY-MM-DD 형식으로 정규화
     const formatDate = (dateStr: string) => {
-      const [year, month, day] = dateStr.replaceAll(" ", "").split(".");
-      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+      return normalizeDate(dateStr);
     };
 
     // 셀 값 업데이트 (스타일은 보존)
