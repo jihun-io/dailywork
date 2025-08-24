@@ -26,6 +26,11 @@ export async function generateExcelFile(data: DailyWorkData, customFilename?: st
       return normalizeDate(dateStr);
     };
 
+    // 파일명용 날짜 포맷팅 - YYYYMMDD 형식
+    const formatDateForFilename = (dateStr: string) => {
+      return normalizeDate(dateStr).replace(/-/g, "");
+    };
+
     // 셀 값 업데이트 (스타일은 보존)
     const updateCellValue = (cellAddress: string, value: string) => {
       const cell = worksheet.getCell(cellAddress);
@@ -62,7 +67,7 @@ export async function generateExcelFile(data: DailyWorkData, customFilename?: st
     const buffer = await workbook.xlsx.writeBuffer();
 
     // 기본 파일명 생성 - 커스텀 파일명이 있으면 사용, 없으면 기본값
-    const defaultFilename = customFilename || `일일업무일지_${data.name}_${formatDate(data.date)}.xlsx`;
+    const defaultFilename = customFilename || `${formatDateForFilename(data.date)} 일일업무일지_${data.name}.xlsx`;
 
     // 파일 저장 대화상자 열기
     const filePath = await save({

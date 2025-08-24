@@ -10,6 +10,8 @@ import {
   Text,
   makeStyles,
   tokens,
+  Radio,
+  RadioGroup,
 } from "@fluentui/react-components";
 import { Add12Filled, Dismiss12Filled } from "@fluentui/react-icons";
 import {
@@ -182,6 +184,15 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase200,
     color: tokens.colorNeutralForeground2,
   },
+  dateFormatSection: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    padding: "12px",
+    backgroundColor: tokens.colorNeutralBackground2,
+    borderRadius: tokens.borderRadiusMedium,
+    border: `1px solid ${tokens.colorNeutralStroke2}`,
+  },
 });
 
 interface FileNameBlock {
@@ -306,12 +317,12 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
 }) => {
   const styles = useStyles();
   const [fileNameBlocks, setFileNameBlocks] = useState<FileNameBlock[]>([
-    { id: "1", type: "text", content: "일일업무일지_" },
-    { id: "2", type: "name", content: "이름" },
-    { id: "3", type: "text", content: "_" },
-    { id: "4", type: "date", content: "날짜" },
+    { id: "1", type: "date", content: "날짜" },
+    { id: "2", type: "text", content: " 일일업무일지_" },
+    { id: "3", type: "name", content: "이름" },
   ]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [dateFormat, setDateFormat] = useState<"yyyy-mm-dd" | "yyyymmdd" | "dateString">("yyyymmdd");
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -320,6 +331,17 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
       },
     })
   );
+
+  const formatDateForFilename = useCallback((dateStr: string) => {
+    const normalized = normalizeDate(dateStr);
+    if (dateFormat === "yyyymmdd") {
+      return normalized.replace(/-/g, "");
+    } else if (dateFormat === "dateString") {
+      const [year, month, day] = normalized.split("-");
+      return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`;
+    }
+    return normalized;
+  }, [dateFormat]);
 
   const generatePreview = useCallback(() => {
     return (
@@ -331,14 +353,14 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
             case "name":
               return formData.name || "[이름없음]";
             case "date":
-              return normalizeDate(formData.date);
+              return formatDateForFilename(formData.date);
             default:
               return block.content;
           }
         })
         .join("") + defaultExtension
     );
-  }, [fileNameBlocks, formData, defaultExtension]);
+  }, [fileNameBlocks, formData, defaultExtension, formatDateForFilename]);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -397,10 +419,9 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
 
   const handleReset = () => {
     setFileNameBlocks([
-      { id: "1", type: "text", content: "일일업무일지_" },
-      { id: "2", type: "name", content: "이름" },
-      { id: "3", type: "text", content: "_" },
-      { id: "4", type: "date", content: "날짜" },
+      { id: "1", type: "date", content: "날짜" },
+      { id: "2", type: "text", content: " 일일업무일지_" },
+      { id: "3", type: "name", content: "이름" },
     ]);
   };
 
@@ -438,6 +459,21 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
                       onAdd={handleAddBlock}
                     />
                   ))}
+                </div>
+              </div>
+
+              {/* 날짜 형식 설정 */}
+              <div className={styles.blockSection}>
+                <Text className={styles.sectionTitle}>날짜 형식 설정</Text>
+                <div className={styles.dateFormatSection}>
+                  <RadioGroup
+                    value={dateFormat}
+                    onChange={(_, data) => setDateFormat(data.value as "yyyy-mm-dd" | "yyyymmdd" | "dateString")}
+                  >
+                    <Radio value="dateString" label={`${new Date().getFullYear()}년 ${new Date().getMonth() + 1}월 ${new Date().getDate()}일`} />
+                    <Radio value="yyyy-mm-dd" label={new Date().toLocaleDateString("en-CA")} />
+                    <Radio value="yyyymmdd" label={new Date().toLocaleDateString("en-CA").replace(/-/g, "")} />
+                  </RadioGroup>
                 </div>
               </div>
 
