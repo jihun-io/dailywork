@@ -25,3 +25,7 @@ dist-ssr
 
 #claude
 .claude
+
+# Apple Signing Keys
+cert/
+.env
