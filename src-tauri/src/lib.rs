@@ -17,6 +17,9 @@ fn create_korean_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>>
         )
         .item(
             &SubmenuBuilder::new(app, "파일")
+                .item(&MenuItemBuilder::new("열기").id("open").accelerator("CmdOrCtrl+O").build(app)?)
+                .item(&MenuItemBuilder::new("저장").id("save").accelerator("CmdOrCtrl+S").build(app)?)
+                .separator()
                 .item(&MenuItemBuilder::new("윈도우 닫기").id("close").accelerator("CmdOrCtrl+W").build(app)?)
                 .build()?
         )
@@ -55,6 +58,16 @@ pub fn run() {
                 }
                 "about" => {
                     // About 다이얼로그 표시
+                }
+                "open" => {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.emit("menu-open", ());
+                    }
+                }
+                "save" => {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.emit("menu-save", ());
+                    }
                 }
                 "hide" => {
                     if let Some(window) = app.get_webview_window("main") {

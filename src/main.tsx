@@ -153,6 +153,30 @@ const setupMenuEventListeners = async () => {
       document.execCommand("selectAll");
     }
   });
+
+  // 파일 메뉴 이벤트 리스너
+  await listen("menu-open", () => {
+    // 열기 버튼 클릭 이벤트 트리거
+    const openButton = document.querySelector('[data-test-id="open-button"]') as HTMLButtonElement;
+    if (openButton && !openButton.disabled) {
+      openButton.click();
+    }
+  });
+
+  await listen("menu-save", () => {
+    // 저장 버튼 클릭 이벤트 트리거
+    const saveButton = document.querySelector('[data-test-id="save-button"]') as HTMLButtonElement;
+    if (saveButton && !saveButton.disabled) {
+      saveButton.click();
+
+      setTimeout(() => {
+        const saveExcelButton = document.querySelector('[data-test-id="export-excel-menuitem"]') as HTMLButtonElement;
+        if (saveExcelButton && !saveExcelButton.disabled) {
+          saveExcelButton.click();
+        }
+      }, 0);
+    }
+  });
 };
 
 // 이벤트 리스너 설정
