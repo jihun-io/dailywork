@@ -193,6 +193,12 @@ const useStyles = makeStyles({
     borderRadius: tokens.borderRadiusMedium,
     border: `1px solid ${tokens.colorNeutralStroke2}`,
   },
+  actionButtons: {
+    paddingTop: "16px",
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "8px",
+  },
 });
 
 interface FileNameBlock {
@@ -531,8 +537,8 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
             )}
           </DndContext>
         </DialogBody>
-        <DialogActions>
-          <Button appearance="secondary" onClick={handleReset}>
+        <DialogActions className={styles.actionButtons}>
+          <Button appearance="secondary" style={{ marginRight: "auto" }} onClick={handleReset}>
             초기화
           </Button>
           <Button appearance="secondary" onClick={() => onOpenChange(false)}>
