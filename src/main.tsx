@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import { listen } from "@tauri-apps/api/event";
 import { writeText, readText } from "@tauri-apps/plugin-clipboard-manager";
+import { register } from '@tauri-apps/plugin-global-shortcut';
 
 // 편집 메뉴 이벤트 리스너 설정
 const setupMenuEventListeners = async () => {
@@ -160,6 +161,30 @@ const setupMenuEventListeners = async () => {
     const openButton = document.querySelector('[data-test-id="open-button"]') as HTMLButtonElement;
     if (openButton && !openButton.disabled) {
       openButton.click();
+    }
+  });
+
+  // Windows에서 글로벌 단축키 이벤트 리스너 (Ctrl+O, Ctrl+S)
+  await register("CommandOrControl+O", () => {
+    // Ctrl+O 단축키가 눌렸을 때 파일 열기 실행
+    const openButton = document.querySelector('[data-test-id="open-button"]') as HTMLButtonElement;
+    if (openButton && !openButton.disabled) {
+      openButton.click();
+    }
+  });
+
+  await register("CommandOrControl+S", () => {
+    // Ctrl+S 단축키가 눌렸을 때 파일 저장 실행
+    const saveButton = document.querySelector('[data-test-id="save-button"]') as HTMLButtonElement;
+    if (saveButton && !saveButton.disabled) {
+      saveButton.click();
+
+      setTimeout(() => {
+        const saveExcelButton = document.querySelector('[data-test-id="export-excel-menuitem"]') as HTMLButtonElement;
+        if (saveExcelButton && !saveExcelButton.disabled) {
+          saveExcelButton.click();
+        }
+      }, 0);
     }
   });
 
