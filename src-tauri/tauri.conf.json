@@ -36,6 +36,12 @@
     ],
     "macOS": {
       "signingIdentity": null
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "",
+      "signCommand": "./sign.sh %1"
     }
   }
 }

@@ -26,6 +26,7 @@ dist-ssr
 #claude
 .claude
 
-# Apple Signing Keys
+# Apple & Windows Signing Keys
 cert/
 .env
+src-tauri/sign.sh
