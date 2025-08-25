@@ -29,3 +29,11 @@ button, input[type=radio], input[type=checkbox], label {
   -ms-user-select: none;
   user-select: none;
 }
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="month"]::-webkit-calendar-picker-indicator,
+input[type="week"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  display: none;
+}
