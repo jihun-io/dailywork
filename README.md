@@ -1,7 +1,23 @@
-# Tauri + React + Typescript
+# <img height="48" alt="dailywork" src="https://github.com/user-attachments/assets/51a060c9-961a-4ea3-a797-c1567b1ac32c" />
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+다운로드: [https://github.com/jihun-io/dailywork/releases](https://github.com/jihun-io/dailywork/releases)
 
-## Recommended IDE Setup
+## 프로젝트 소개
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+**dailywork**는 엑셀 파일 기반의 일일업무일지를 더욱 효율적으로 작성할 수 있는 애플리케이션입니다. 
+
+## 사용된 기술
+- Tauri v2
+- React 19
+- TypeScript
+- Vite
+
+## 주요 기능
+- 일일 업무 일지 작성
+- xlsx 파일로 저장 및 불러오기
+- PDF 파일로 내보내기
+
+## 지원하는 플랫폼
+- macOS (Apple silicon)
+- Windows (x86_64)
+
