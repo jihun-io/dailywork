@@ -41,14 +41,22 @@ fn create_korean_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>>
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .setup(|app| {
-            let menu = create_korean_menu(app.handle())?;
-            app.set_menu(menu)?;
+            // Windows에서는 메뉴 바를 숨기고, macOS에서만 메뉴 바를 표시
+            #[cfg(target_os = "macos")]
+            {
+                let menu = create_korean_menu(app.handle())?;
+                app.set_menu(menu)?;
+            }
+            #[cfg(target_os = "windows")]
+            {
+                let _ = app.handle().plugin(tauri_plugin_global_shortcut::Builder::new().build());
+            }
             Ok(())
         })
         .on_menu_event(|app, event| {
