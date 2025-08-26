@@ -77,7 +77,7 @@ pub fn run() {
                     {
                         use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
                         let _ = app.dialog()
-                            .message("dailywork v0.1.0\n\n© 2025 Jihun Kim. All rights reserved.")
+                            .message("dailywork v0.1.1\n\n© 2025 Jihun Kim. All rights reserved.")
                             .kind(MessageDialogKind::Info)
                             .buttons(MessageDialogButtons::Ok)
                             .title("dailywork에 관하여")
