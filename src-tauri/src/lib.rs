@@ -53,10 +53,6 @@ pub fn run() {
                 let menu = create_korean_menu(app.handle())?;
                 app.set_menu(menu)?;
             }
-            #[cfg(target_os = "windows")]
-            {
-                let _ = app.handle().plugin(tauri_plugin_global_shortcut::Builder::new().build());
-            }
             Ok(())
         })
         .on_menu_event(|app, event| {
