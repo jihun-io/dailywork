@@ -1,6 +1,9 @@
 # <img height="48" alt="dailywork" src="https://github.com/user-attachments/assets/51a060c9-961a-4ea3-a797-c1567b1ac32c" />
 
-<img width="480" alt="dailywork 버전 0.1.0의 스크린샷" src="https://github.com/user-attachments/assets/8582f92a-bc03-4bb8-9f41-e16aadcaa194" />
+<div>
+  <img align=top width="480" alt="dailywork 버전 0.1.0의 스크린샷" src="https://github.com/user-attachments/assets/70c9f59a-80cb-47b3-bbf8-42dc298614ea" />
+  <img align=top width="480" alt="dailywork 버전 0.1.0의 PDF 내보내기 결과" src="https://github.com/user-attachments/assets/929aeba8-b00b-4181-92b3-e6b00a61865b" />
+</div>
 
 
 다운로드: [https://github.com/jihun-io/dailywork/releases](https://github.com/jihun-io/dailywork/releases)
