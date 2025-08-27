@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Badge } from '@fluentui/react-components';
-import { ArrowUpload20Regular } from '@fluentui/react-icons';
 import { checkForUpdates } from '../lib/versionUtils';
 import { openUrl } from '@tauri-apps/plugin-opener';
 
