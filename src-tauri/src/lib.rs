@@ -132,8 +132,9 @@ pub fn run() {
                     #[cfg(not(target_os = "macos"))]
                     {
                         use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
+                        let version = env!("CARGO_PKG_VERSION");
                         let _ = app.dialog()
-                            .message("dailywork v0.1.1\n\n© 2025 Jihun Kim. All rights reserved.")
+                            .message(&format!("dailywork v{}\n\n© 2025 Jihun Kim. All rights reserved.", version))
                             .kind(MessageDialogKind::Info)
                             .buttons(MessageDialogButtons::Ok)
                             .title("dailywork에 관하여")
