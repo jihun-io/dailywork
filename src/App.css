@@ -19,11 +19,11 @@ body,
   font-family: "Pretendard Variable"!important;
 }
 
-button, input[type=radio], input[type=checkbox], label {
+button, input[type=radio], input[type=checkbox], label, [role=button], [role=menuitem], input:read-only {
   cursor: default!important;
 }
 
-*:not(input, textarea) {
+*:not(input, textarea), input:read-only {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
