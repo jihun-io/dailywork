@@ -49,6 +49,7 @@ import { TaskCard } from "./TaskCard";
 import { SpecialNotesCard } from "./SpecialNotesCard";
 import { FileNameCustomizer } from "./FileNameCustomizer";
 import { SaveConfirmDialog } from "./SaveConfirmDialog";
+import { UpdateChecker } from "./UpdateChecker";
 
 export default function DailyWorkForm() {
   const styles = useStyles();
@@ -300,6 +301,8 @@ export default function DailyWorkForm() {
             <div className={styles.headerActions}>
               {(isLoading || isImporting) && <Spinner size="small" />}
 
+              <UpdateChecker />
+
               <UserInfoDialog
                 isOpen={userDialogOpen}
                 onOpenChange={setUserDialogOpen}
@@ -341,9 +344,8 @@ export default function DailyWorkForm() {
                       <ChevronDown16Regular style={{ display: "block" }} />
                     }
                     disabled={isLoading || isImporting}
-                  >
-                    설정
-                  </MenuButton>
+                    aria-label="설정"
+                  />
                 </MenuTrigger>
                 <MenuPopover>
                   <MenuList>
@@ -372,9 +374,8 @@ export default function DailyWorkForm() {
                 onClick={handleImportExcel}
                 disabled={isLoading || isImporting}
                 data-test-id="open-button"
-              >
-                열기
-              </Button>
+                aria-label="열기"
+              />
 
               <Menu>
                 <MenuTrigger disableButtonEnhancement>
@@ -388,9 +389,8 @@ export default function DailyWorkForm() {
                     className={styles.saveButton}
                     disabled={isLoading || isImporting}
                     data-test-id="save-button"
-                  >
-                    저장
-                  </MenuButton>
+                    aria-label="저장"
+                  />
                 </MenuTrigger>
                 <MenuPopover>
                   <MenuList>
