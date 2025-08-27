@@ -21,6 +21,7 @@ import {
   Edit20Regular,
   TextBulletListLtr20Regular,
 } from "@fluentui/react-icons";
+import { invoke } from "@tauri-apps/api/core";
 import { DailyWorkData, WorkTask } from "../types/dailyWork";
 import { generateExcelFile } from "../lib/excelGenerator";
 import { generateReactPDF } from "../lib/reactPdfGenerator";
@@ -47,6 +48,7 @@ import { BasicInfoCard } from "./BasicInfoCard";
 import { TaskCard } from "./TaskCard";
 import { SpecialNotesCard } from "./SpecialNotesCard";
 import { FileNameCustomizer } from "./FileNameCustomizer";
+import { SaveConfirmDialog } from "./SaveConfirmDialog";
 
 export default function DailyWorkForm() {
   const styles = useStyles();
@@ -81,9 +83,45 @@ export default function DailyWorkForm() {
   const [pendingExportType, setPendingExportType] = useState<
     "pdf" | "excel" | null
   >(null);
+  const [isModified, setIsModified] = useState(false);
+  const [saveConfirmDialogOpen, setSaveConfirmDialogOpen] = useState(false);
 
   useEffect(() => {
     loadUserInfoToForm(setFormData);
+  }, []);
+
+  // isModified 상태가 변경될 때마다 Tauri로 상태 전달
+  useEffect(() => {
+    const updateModifiedState = async () => {
+      try {
+        await invoke("set_modified_state", { isModified });
+      } catch (error) {
+        console.error("수정 상태 업데이트 실패:", error);
+      }
+    };
+
+    updateModifiedState();
+  }, [isModified]);
+
+  // 창 닫기 확인 이벤트 리스너
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+
+    const setupCloseListener = async () => {
+      const { listen } = await import("@tauri-apps/api/event");
+      
+      unlisten = await listen("confirm-close", () => {
+        setSaveConfirmDialogOpen(true);
+      });
+    };
+
+    setupCloseListener();
+
+    return () => {
+      if (unlisten) {
+        unlisten();
+      }
+    };
   }, []);
 
   const handleMoveTask = (id: string, direction: "up" | "down") => {
@@ -109,6 +147,7 @@ export default function DailyWorkForm() {
   const handleUpdateTask = (id: string, updates: Partial<WorkTask>) => {
     const newTasks = updateTask(formData.tasks, id, updates);
     setFormData((prev) => ({ ...prev, tasks: newTasks }));
+    setIsModified(true);
   };
 
   const handleSaveUserInfo = () => {
@@ -127,12 +166,14 @@ export default function DailyWorkForm() {
 
   const handleFormDataChange = (updates: Partial<DailyWorkData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
+    setIsModified(true);
   };
 
   const handleExportExcel = async (customFilename?: string) => {
     setIsLoading(true);
     try {
       await generateExcelFile(formData, customFilename);
+      setIsModified(false); // 저장 후 수정 상태 초기화
     } catch (error) {
       console.error("엑셀 파일 생성 중 오류:", error);
     } finally {
@@ -144,6 +185,7 @@ export default function DailyWorkForm() {
     setIsLoading(true);
     try {
       await generateReactPDF(formData, customFilename);
+      setIsModified(false); // 저장 후 수정 상태 초기화
     } catch (error) {
       console.error("React PDF 파일 생성 중 오류:", error);
     } finally {
@@ -171,6 +213,30 @@ export default function DailyWorkForm() {
   const handleFileNameSettings = () => {
     setPendingExportType(null); // 파일명 설정만 열기
     setFileNameCustomizerOpen(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      await generateExcelFile(formData);
+      setIsModified(false); // 저장 완료 후 수정 상태 초기화
+    } catch (error) {
+      console.error("저장 실패:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCloseWithoutSaving = async () => {
+    try {
+      await invoke("force_close_window");
+    } catch (error) {
+      console.error("창 닫기 실패:", error);
+    }
+  };
+
+  const handleCancelClose = () => {
+    // 아무것도 하지 않음 - 다이얼로그만 닫힘
   };
 
   const handleImportExcel = async () => {
@@ -208,6 +274,7 @@ export default function DailyWorkForm() {
       console.log("불러온 데이터:", importedData);
       if (importedData) {
         setFormData(importedData);
+        setIsModified(false); // 파일 불러온 후 수정 상태 초기화
         console.log("폼 데이터 업데이트 완료");
       } else {
         console.log("불러온 데이터가 없습니다.");
@@ -371,6 +438,15 @@ export default function DailyWorkForm() {
             />
           </main>
         </div>
+
+        {/* 저장 확인 다이얼로그 */}
+        <SaveConfirmDialog
+          isOpen={saveConfirmDialogOpen}
+          onOpenChange={setSaveConfirmDialogOpen}
+          onSave={handleSave}
+          onCloseWithoutSaving={handleCloseWithoutSaving}
+          onCancel={handleCancelClose}
+        />
       </div>
     </FluentProvider>
   );

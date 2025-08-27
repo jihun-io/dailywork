@@ -215,6 +215,12 @@ const setupMenuEventListeners = async () => {
       }, 0);
     }
   });
+
+    // 창 닫기 확인 이벤트 리스너 (React 컴포넌트에서 처리)
+  await listen("confirm-close", () => {
+    // React 컴포넌트에서 다이얼로그를 표시하도록 이벤트만 전달
+    // 실제 처리는 DailyWorkForm.tsx에서 수행
+  });
 };
 
 // Windows에서만 키보드 단축키 리스너 추가

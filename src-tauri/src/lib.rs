@@ -1,9 +1,41 @@
-use tauri::{menu::*, Manager, Emitter};
+use tauri::{menu::*, Manager, Emitter, State};
+use std::sync::{Arc, Mutex};
+
+// 수정된 상태를 관리하는 구조체
+#[derive(Default)]
+struct AppState {
+    is_modified: Arc<Mutex<bool>>,
+}
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+#[tauri::command]
+fn set_modified_state(state: State<AppState>, is_modified: bool) {
+    if let Ok(mut modified) = state.is_modified.lock() {
+        *modified = is_modified;
+    }
+}
+
+#[tauri::command]
+fn get_modified_state(state: State<AppState>) -> bool {
+    state.is_modified.lock().map(|modified| *modified).unwrap_or(false)
+}
+
+#[tauri::command]
+async fn force_close_window(app: tauri::AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("main") {
+        // 수정 상태를 false로 설정하여 다시 물어보지 않도록 함
+        let state: tauri::State<AppState> = app.state();
+        if let Ok(mut modified) = state.is_modified.lock() {
+            *modified = false;
+        }
+        window.close().map_err(|e| e.to_string())?;
+    }
+    Ok(())
 }
 
 fn create_korean_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
@@ -41,11 +73,14 @@ fn create_korean_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>>
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let mut builder = tauri::Builder::default()
+    let app_state = AppState::default();
+    
+    tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .manage(app_state)
         .setup(|app| {
             // Windows에서는 메뉴 바를 숨기고, macOS에서만 메뉴 바를 표시
             #[cfg(target_os = "macos")]
@@ -53,6 +88,27 @@ pub fn run() {
                 let menu = create_korean_menu(app.handle())?;
                 app.set_menu(menu)?;
             }
+
+            // 창 닫기 전 이벤트 처리
+            if let Some(window) = app.get_webview_window("main") {
+                let app_handle = app.handle().clone();
+                window.on_window_event(move |event| {
+                    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                        // 현재 수정 상태 확인
+                        let state: tauri::State<AppState> = app_handle.state();
+                        let is_modified = state.is_modified.lock().map(|modified| *modified).unwrap_or(false);
+                        
+                        if is_modified {
+                            // 프론트엔드에 확인 다이얼로그를 요청
+                            let _ = app_handle.emit("confirm-close", ());
+                            // 창 닫기를 일단 방지
+                            api.prevent_close();
+                        }
+                        // 수정되지 않았으면 그냥 닫기
+                    }
+                });
+            }
+
             Ok(())
         })
         .on_menu_event(|app, event| {
@@ -147,7 +203,7 @@ pub fn run() {
                 _ => {}
             }
         })
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![greet, set_modified_state, get_modified_state, force_close_window])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
