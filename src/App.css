@@ -30,6 +30,10 @@ button, input[type=radio], input[type=checkbox], label, [role=button], [role=men
   user-select: none;
 }
 
+img {
+  -webkit-user-drag: none;
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator,
 input[type="month"]::-webkit-calendar-picker-indicator,
