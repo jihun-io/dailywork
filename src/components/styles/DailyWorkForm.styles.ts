@@ -247,7 +247,7 @@ export const useStyles = makeStyles({
       minHeight: "160px",
       fontFamily: tokens.fontFamilyBase,
       lineHeight: tokens.lineHeightBase400,
-      resize: "vertical",
+      resize: "none",
     },
   },
   timeRangeContainer: {

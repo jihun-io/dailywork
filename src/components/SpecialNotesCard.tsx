@@ -38,7 +38,7 @@ export function SpecialNotesCard({
               onFormDataChange({ specialNotes: e.target.value })
             }
             className={styles.specialNotesField}
-            resize="vertical"
+            resize="none"
           />
         </Field>
       </div>
