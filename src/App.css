@@ -19,7 +19,7 @@ body,
   font-family: "Pretendard Variable"!important;
 }
 
-button, input[type=radio], input[type=checkbox], label, [role=button], [role=menuitem], input:read-only {
+button, input[type=radio], input[type=checkbox], label, [role=button], [role=menuitem], input:read-only, h2, p {
   cursor: default!important;
 }
 

@@ -44,18 +44,16 @@ export function SaveConfirmDialog({
       onOpenChange={(_event, data) => onOpenChange(data.open)}
     >
       <DialogSurface style={{ width: "480px" }}>
-        <DialogTitle>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "12px",
-            }}
-          >
-            <Warning24Regular style={{ color: "#f59e0b" }} />
-            변경 사항 저장
-          </div>
+        <DialogTitle
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            marginBottom: "12px",
+          }}
+        >
+          <Warning24Regular style={{ color: "#f59e0b" }} />
+          변경 사항 저장
         </DialogTitle>
         <DialogBody>
           <p>

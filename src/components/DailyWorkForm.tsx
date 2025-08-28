@@ -295,10 +295,10 @@ export default function DailyWorkForm() {
         {/* 메인 콘텐츠 */}
         <div className={styles.mainContent}>
           <header className={styles.header}>
-            <div className={styles.headerLeft}>
+            <h1 className={styles.headerLeft}>
               <IconLogo height={40} />
               <TextLogo height={32} color={tokens.colorBrandForeground1} />
-            </div>
+            </h1>
             <div className={styles.headerActions}>
               {(isLoading || isImporting) && <Spinner size="small" />}
 
