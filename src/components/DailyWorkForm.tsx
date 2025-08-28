@@ -10,6 +10,7 @@ import {
   MenuList,
   MenuItem,
   Button,
+  Tooltip,
 } from "@fluentui/react-components";
 import {
   DocumentPdf20Regular,
@@ -110,7 +111,7 @@ export default function DailyWorkForm() {
 
     const setupCloseListener = async () => {
       const { listen } = await import("@tauri-apps/api/event");
-      
+
       unlisten = await listen("confirm-close", () => {
         setSaveConfirmDialogOpen(true);
       });
@@ -336,16 +337,18 @@ export default function DailyWorkForm() {
 
               <Menu>
                 <MenuTrigger disableButtonEnhancement>
-                  <MenuButton
-                    appearance="subtle"
-                    size="large"
-                    icon={<Settings20Regular />}
-                    menuIcon={
-                      <ChevronDown16Regular style={{ display: "block" }} />
-                    }
-                    disabled={isLoading || isImporting}
-                    aria-label="설정"
-                  />
+                  <Tooltip content="설정" relationship="label">
+                    <MenuButton
+                      appearance="subtle"
+                      size="large"
+                      icon={<Settings20Regular />}
+                      menuIcon={
+                        <ChevronDown16Regular style={{ display: "block" }} />
+                      }
+                      disabled={isLoading || isImporting}
+                      aria-label="설정"
+                    />
+                  </Tooltip>
                 </MenuTrigger>
                 <MenuPopover>
                   <MenuList>
@@ -367,30 +370,34 @@ export default function DailyWorkForm() {
                 </MenuPopover>
               </Menu>
 
-              <Button
-                appearance="subtle"
-                size="large"
-                icon={<FolderOpen20Regular />}
-                onClick={handleImportExcel}
-                disabled={isLoading || isImporting}
-                data-test-id="open-button"
-                aria-label="열기"
-              />
+              <Tooltip content="열기" relationship="label">
+                <Button
+                  appearance="subtle"
+                  size="large"
+                  icon={<FolderOpen20Regular />}
+                  onClick={handleImportExcel}
+                  disabled={isLoading || isImporting}
+                  data-test-id="open-button"
+                  aria-label="열기"
+                />
+              </Tooltip>
 
               <Menu>
                 <MenuTrigger disableButtonEnhancement>
-                  <MenuButton
-                    appearance="primary"
-                    size="large"
-                    icon={<Save20Regular />}
-                    menuIcon={
-                      <ChevronDown16Regular style={{ display: "block" }} />
-                    }
-                    className={styles.saveButton}
-                    disabled={isLoading || isImporting}
-                    data-test-id="save-button"
-                    aria-label="저장"
-                  />
+                  <Tooltip content="저장" relationship="label">
+                    <MenuButton
+                      appearance="primary"
+                      size="large"
+                      icon={<Save20Regular />}
+                      menuIcon={
+                        <ChevronDown16Regular style={{ display: "block" }} />
+                      }
+                      className={styles.saveButton}
+                      disabled={isLoading || isImporting}
+                      data-test-id="save-button"
+                      aria-label="저장"
+                    />
+                  </Tooltip>
                 </MenuTrigger>
                 <MenuPopover>
                   <MenuList>
