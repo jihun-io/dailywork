@@ -43,7 +43,7 @@ export function SaveConfirmDialog({
       open={isOpen}
       onOpenChange={(_event, data) => onOpenChange(data.open)}
     >
-      <DialogSurface style={{ minWidth: "400px" }}>
+      <DialogSurface style={{ width: "480px" }}>
         <DialogTitle>
           <div
             style={{
@@ -54,15 +54,15 @@ export function SaveConfirmDialog({
             }}
           >
             <Warning24Regular style={{ color: "#f59e0b" }} />
-            변경사항 저장
+            변경 사항 저장
           </div>
         </DialogTitle>
         <DialogBody>
-          <div style={{ marginBottom: "16px" }}>
+          <p>
             저장하지 않은 변경 사항이 있습니다.
             <br />
-            어떻게 하시겠습니까?
-          </div>
+            저장하시겠습니까?
+          </p>
         </DialogBody>
         <DialogActions
           style={{
