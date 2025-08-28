@@ -89,7 +89,7 @@ export function UserInfoDialog({
               </Field>
             </div>
           </DialogContent>
-          <DialogActions>
+          <DialogActions style={{ paddingTop: "16px" }}>
             <Button appearance="secondary" onClick={() => onOpenChange(false)}>
               취소
             </Button>

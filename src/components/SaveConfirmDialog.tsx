@@ -6,10 +6,7 @@ import {
   DialogActions,
   Button,
 } from "@fluentui/react-components";
-import {
-  Save24Regular,
-  Warning24Regular,
-} from "@fluentui/react-icons";
+import { Save24Regular, Warning24Regular } from "@fluentui/react-icons";
 
 interface SaveConfirmDialogProps {
   isOpen: boolean;
@@ -48,7 +45,14 @@ export function SaveConfirmDialog({
     >
       <DialogSurface style={{ minWidth: "400px" }}>
         <DialogTitle>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              marginBottom: "12px",
+            }}
+          >
             <Warning24Regular style={{ color: "#f59e0b" }} />
             변경사항 저장
           </div>
@@ -60,8 +64,18 @@ export function SaveConfirmDialog({
             어떻게 하시겠습니까?
           </div>
         </DialogBody>
-        <DialogActions style={{ justifyContent: "flex-end" }}>
-          <Button appearance="secondary" onClick={handleCancel} style={{marginRight: "auto"}}>
+        <DialogActions
+          style={{
+            width: "100%",
+            paddingTop: "16px",
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button
+            appearance="secondary"
+            onClick={handleCancel}
+            style={{ marginRight: "auto" }}
+          >
             취소
           </Button>
           <Button appearance="secondary" onClick={handleCloseWithoutSaving}>
