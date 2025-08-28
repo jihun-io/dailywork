@@ -192,6 +192,7 @@ const useStyles = makeStyles({
     border: `1px solid ${tokens.colorNeutralStroke2}`,
   },
   actionButtons: {
+    width: "100%",
     paddingTop: "16px",
     display: "flex",
     justifyContent: "flex-end",
