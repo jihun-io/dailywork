@@ -83,6 +83,7 @@ export function TaskCard({
                         icon={<ArrowUp20Regular />}
                         onClick={() => onMoveTask(task.id, "up")}
                         className={styles.taskButton}
+                        aria-label="업무 위로 이동"
                       />
                     </Tooltip>
                   )}
@@ -94,6 +95,7 @@ export function TaskCard({
                         icon={<ArrowDown20Regular />}
                         onClick={() => onMoveTask(task.id, "down")}
                         className={styles.taskButton}
+                        aria-label="업무 아래로 이동"
                       />
                     </Tooltip>
                   )}
@@ -104,6 +106,7 @@ export function TaskCard({
                       icon={<Copy20Regular />}
                       onClick={() => onDuplicateTask(task.id)}
                       className={styles.taskButton}
+                      aria-label="업무 복사"
                     />
                   </Tooltip>
                   {formData.tasks.length > 1 && (
@@ -114,6 +117,7 @@ export function TaskCard({
                         icon={<Dismiss20Regular />}
                         onClick={() => onRemoveTask(task.id)}
                         className={styles.taskButton}
+                        aria-label="업무 삭제"
                       />
                     </Tooltip>
                   )}
