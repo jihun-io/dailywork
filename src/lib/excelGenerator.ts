@@ -3,8 +3,9 @@ import { DailyWorkData } from "../types/dailyWork";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { normalizeDate } from "../utils/dateUtils";
+import { generateFileName } from "../utils/fileNameUtils.ts";
 
-export async function generateExcelFile(data: DailyWorkData, customFilename?: string) {
+export async function generateExcelFile(data: DailyWorkData) {
   try {
     // 템플릿 파일 로드 (public 폴더에서)
     const templatePath = "/daily-work.xlsx";
@@ -26,11 +27,6 @@ export async function generateExcelFile(data: DailyWorkData, customFilename?: st
       return normalizeDate(dateStr);
     };
 
-    // 파일명용 날짜 포맷팅 - YYYYMMDD 형식
-    const formatDateForFilename = (dateStr: string) => {
-      return normalizeDate(dateStr).replace(/-/g, "");
-    };
-
     // 셀 값 업데이트 (스타일은 보존)
     const updateCellValue = (cellAddress: string, value: string) => {
       const cell = worksheet.getCell(cellAddress);
@@ -39,7 +35,10 @@ export async function generateExcelFile(data: DailyWorkData, customFilename?: st
 
     // 기본 정보 채우기
     updateCellValue("C4", formatDate(data.date));
-    updateCellValue("E4", `${data.startTime} ~ ${data.endTime}${data.halfDay ? ' (반차)' : data.oasis ? ' (오아시스)' : ''}`);
+    updateCellValue(
+      "E4",
+      `${data.startTime} ~ ${data.endTime}${data.halfDay ? " (반차)" : data.oasis ? " (오아시스)" : ""}`,
+    );
     updateCellValue("C5", data.department);
     updateCellValue("E5", data.name);
 
@@ -67,7 +66,10 @@ export async function generateExcelFile(data: DailyWorkData, customFilename?: st
     const buffer = await workbook.xlsx.writeBuffer();
 
     // 기본 파일명 생성 - 커스텀 파일명이 있으면 사용, 없으면 기본값
-    const defaultFilename = customFilename || `${formatDateForFilename(data.date)} 일일업무일지_${data.name}.xlsx`;
+    const defaultFilename = generateFileName({
+      dateStr: data.date,
+      username: data.name,
+    });
 
     // 파일 저장 대화상자 열기
     const filePath = await save({

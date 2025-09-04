@@ -257,14 +257,8 @@ const BlockComponent: React.FC<{
     );
   }
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: block.id });
-
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: block.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -314,7 +308,6 @@ const BlockComponent: React.FC<{
 export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
   isOpen,
   onOpenChange,
-  onConfirm,
   defaultExtension,
   formData,
   isSettingsMode = false,
@@ -326,26 +319,33 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
     { id: "3", type: "name", content: "작성자" },
   ]);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [dateFormat, setDateFormat] = useState<"yyyy-mm-dd" | "yyyymmdd" | "dateString">("yyyymmdd");
+  const [dateFormat, setDateFormat] = useState<
+    "yyyy-mm-dd" | "yyyymmdd" | "yymmdd" | "dateString"
+  >("yyyymmdd");
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
       },
-    })
+    }),
   );
 
-  const formatDateForFilename = useCallback((dateStr: string) => {
-    const normalized = normalizeDate(dateStr);
-    if (dateFormat === "yyyymmdd") {
-      return normalized.replace(/-/g, "");
-    } else if (dateFormat === "dateString") {
-      const [year, month, day] = normalized.split("-");
-      return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`;
-    }
-    return normalized;
-  }, [dateFormat]);
+  const formatDateForFilename = useCallback(
+    (dateStr: string) => {
+      const normalized = normalizeDate(dateStr);
+      if (dateFormat === "yyyymmdd") {
+        return normalized.replace(/-/g, "");
+      } else if (dateFormat === "yymmdd") {
+        return normalized.slice(2).replace(/-/g, "");
+      } else if (dateFormat === "dateString") {
+        const [year, month, day] = normalized.split("-");
+        return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`;
+      }
+      return normalized;
+    },
+    [dateFormat],
+  );
 
   const generatePreview = useCallback(() => {
     return (
@@ -410,14 +410,21 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
   const handleTextChange = (blockId: string, newContent: string) => {
     setFileNameBlocks((blocks) =>
       blocks.map((block) =>
-        block.id === blockId ? { ...block, content: newContent } : block
-      )
+        block.id === blockId ? { ...block, content: newContent } : block,
+      ),
     );
   };
 
   const handleConfirm = () => {
-    const filename = generatePreview();
-    onConfirm(filename);
+    // 로컬 스토리지에 파일 이름 형식 저장
+    localStorage.setItem(
+      "preferredFileNameFormat",
+      JSON.stringify({
+        blocks: fileNameBlocks,
+        dateFormat,
+      }),
+    );
+
     onOpenChange(false);
   };
 
@@ -472,11 +479,33 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
                 <div className={styles.dateFormatSection}>
                   <RadioGroup
                     value={dateFormat}
-                    onChange={(_, data) => setDateFormat(data.value as "yyyy-mm-dd" | "yyyymmdd" | "dateString")}
+                    onChange={(_, data) =>
+                      setDateFormat(
+                        data.value as "yyyy-mm-dd" | "yyyymmdd" | "dateString",
+                      )
+                    }
                   >
-                    <Radio value="dateString" label={`${new Date().getFullYear()}년 ${new Date().getMonth() + 1}월 ${new Date().getDate()}일`} />
-                    <Radio value="yyyy-mm-dd" label={new Date().toLocaleDateString("en-CA")} />
-                    <Radio value="yyyymmdd" label={new Date().toLocaleDateString("en-CA").replace(/-/g, "")} />
+                    <Radio
+                      value="dateString"
+                      label={`${new Date().getFullYear()}년 ${new Date().getMonth() + 1}월 ${new Date().getDate()}일`}
+                    />
+                    <Radio
+                      value="yyyy-mm-dd"
+                      label={new Date().toLocaleDateString("en-CA")}
+                    />
+                    <Radio
+                      value="yyyymmdd"
+                      label={new Date()
+                        .toLocaleDateString("en-CA")
+                        .replace(/-/g, "")}
+                    />
+                    <Radio
+                      value="yymmdd"
+                      label={new Date()
+                        .toLocaleDateString("en-CA")
+                        .slice(2)
+                        .replace(/-/g, "")}
+                    />
                   </RadioGroup>
                 </div>
               </div>
@@ -512,32 +541,38 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
                 <div className={styles.preview}>{generatePreview()}</div>
               </div>
             </div>
-            
+
             {createPortal(
-              <DragOverlay 
+              <DragOverlay
                 dropAnimation={{
                   duration: 200,
-                  easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+                  easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
                 }}
               >
                 {activeId ? (
-                  <div style={{
-                    opacity: 0,
-                    cursor: 'grabbing'
-                  }}>
+                  <div
+                    style={{
+                      opacity: 0,
+                      cursor: "grabbing",
+                    }}
+                  >
                     <BlockComponent
-                      block={fileNameBlocks.find(b => b.id === activeId)!}
+                      block={fileNameBlocks.find((b) => b.id === activeId)!}
                       onTextChange={handleTextChange}
                     />
                   </div>
                 ) : null}
               </DragOverlay>,
-              document.body
+              document.body,
             )}
           </DndContext>
         </DialogBody>
         <DialogActions className={styles.actionButtons}>
-          <Button appearance="secondary" style={{ marginRight: "auto" }} onClick={handleReset}>
+          <Button
+            appearance="secondary"
+            style={{ marginRight: "auto" }}
+            onClick={handleReset}
+          >
             초기화
           </Button>
           <Button appearance="secondary" onClick={() => onOpenChange(false)}>
