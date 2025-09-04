@@ -1,12 +1,12 @@
 import { normalizeDate } from "./dateUtils.ts";
 
-interface FileNameBlock {
+export interface FileNameBlock {
   id: string;
   type: "text" | "name" | "date";
-  content?: string; // type이 "text"인 경우에만 사용
+  content: string; // type이 "text"인 경우에만 사용
 }
 
-interface FileNameFormat {
+export interface FileNameFormat {
   blocks: Array<FileNameBlock>;
   dateFormat: "yyyymmdd" | "yymmdd" | "dateString" | "yyyy-mm-dd";
 }
@@ -68,5 +68,5 @@ export function generateFileName({
           }
         })
         .join("")
-    : `${formatDateForFilename({ dateStr, dateFormat })} 일일업무일지_${username}`;
+    : `${formatDateForFilename({ dateStr, dateFormat })} 일일업무일지_${username || "[이름없음]"}`;
 }
