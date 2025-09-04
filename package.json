@@ -11,6 +11,7 @@
     "version:sync": "node scripts/sync-version.js",
     "tauri:build-mac": "npm run version:sync && set -a && source .env && set +a && npm run tauri build",
     "tauri:build-win": "npm run version:sync && set -a && source .env && set +a && npm run tauri build -- --runner cargo-xwin --target x86_64-pc-windows-msvc",
+    "tauri:build-all": "npm run tauri:build-mac && npm run tauri:build-win",
     "version": "npm run version:sync && git add ."
   },
   "dependencies": {
