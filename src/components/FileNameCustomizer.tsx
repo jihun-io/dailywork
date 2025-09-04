@@ -33,6 +33,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { DailyWorkData } from "../types/dailyWork";
 import { normalizeDate } from "../utils/dateUtils";
+import { FileNameFormat, FileNameBlock } from "../utils/fileNameUtils.ts";
 
 const useStyles = makeStyles({
   container: {
@@ -200,12 +201,6 @@ const useStyles = makeStyles({
   },
 });
 
-interface FileNameBlock {
-  id: string;
-  type: "text" | "name" | "date";
-  content: string;
-}
-
 interface FileNameCustomizerProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -313,11 +308,26 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
   isSettingsMode = false,
 }) => {
   const styles = useStyles();
-  const [fileNameBlocks, setFileNameBlocks] = useState<FileNameBlock[]>([
-    { id: "1", type: "date", content: "날짜" },
-    { id: "2", type: "text", content: " 일일업무일지_" },
-    { id: "3", type: "name", content: "작성자" },
-  ]);
+
+  const preferredFileNameFormatString = localStorage.getItem(
+    "preferredFileNameFormat",
+  );
+
+  const preferredFileNameFormat: FileNameFormat = preferredFileNameFormatString
+    ? JSON.parse(preferredFileNameFormatString)
+    : {
+        blocks: [
+          { id: "1", type: "date", content: "날짜" },
+          { id: "2", type: "text", content: " 일일업무일지_" },
+          { id: "3", type: "name", content: "작성자" },
+        ],
+        dateFormat: "yyyymmdd",
+      };
+
+  const [fileNameBlocks, setFileNameBlocks] = useState<FileNameBlock[]>(
+    preferredFileNameFormat.blocks,
+  );
+
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dateFormat, setDateFormat] = useState<
     "yyyy-mm-dd" | "yyyymmdd" | "yymmdd" | "dateString"
@@ -434,6 +444,8 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
       { id: "2", type: "text", content: " 일일업무일지_" },
       { id: "3", type: "name", content: "작성자" },
     ]);
+
+    setDateFormat("yyyymmdd");
   };
 
   return (
