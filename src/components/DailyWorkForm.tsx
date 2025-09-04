@@ -171,10 +171,10 @@ export default function DailyWorkForm() {
     setIsModified(true);
   };
 
-  const handleExportExcel = async (customFilename?: string) => {
+  const handleExportExcel = async () => {
     setIsLoading(true);
     try {
-      await generateExcelFile(formData, customFilename);
+      await generateExcelFile(formData);
       setIsModified(false); // 저장 후 수정 상태 초기화
     } catch (error) {
       console.error("엑셀 파일 생성 중 오류:", error);
@@ -183,10 +183,10 @@ export default function DailyWorkForm() {
     }
   };
 
-  const handleExportReactPDF = async (customFilename?: string) => {
+  const handleExportReactPDF = async () => {
     setIsLoading(true);
     try {
-      await generateReactPDF(formData, customFilename);
+      await generateReactPDF(formData);
       setIsModified(false); // 저장 후 수정 상태 초기화
     } catch (error) {
       console.error("React PDF 파일 생성 중 오류:", error);
@@ -203,11 +203,11 @@ export default function DailyWorkForm() {
     }
   };
 
-  const handleFileNameConfirm = (filename: string) => {
+  const handleFileNameConfirm = () => {
     if (pendingExportType === "pdf") {
-      handleExportReactPDF(filename);
+      handleExportReactPDF();
     } else if (pendingExportType === "excel") {
-      handleExportExcel(filename);
+      handleExportExcel();
     }
 
     setPendingExportType(null);
