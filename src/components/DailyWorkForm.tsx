@@ -209,6 +209,7 @@ export default function DailyWorkForm() {
     } else if (pendingExportType === "excel") {
       handleExportExcel(filename);
     }
+
     setPendingExportType(null);
   };
 
@@ -259,7 +260,7 @@ export default function DailyWorkForm() {
           kind: "warning",
           okLabel: "열기",
           cancelLabel: "취소",
-        }
+        },
       );
       console.log("사용자 확인 결과:", shouldProceed);
     }

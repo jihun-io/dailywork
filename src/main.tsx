@@ -48,12 +48,12 @@ const setupMenuEventListeners = async () => {
           if (activeElement.tagName === "INPUT") {
             nativeInputValueSetter = Object.getOwnPropertyDescriptor(
               window.HTMLInputElement.prototype,
-              "value"
+              "value",
             )?.set;
           } else if (activeElement.tagName === "TEXTAREA") {
             nativeInputValueSetter = Object.getOwnPropertyDescriptor(
               window.HTMLTextAreaElement.prototype,
-              "value"
+              "value",
             )?.set;
           }
 
@@ -148,7 +148,7 @@ const setupMenuEventListeners = async () => {
         // React-friendly한 방식으로 값 설정
         const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
           activeElement.constructor.prototype,
-          "value"
+          "value",
         )?.set;
 
         if (nativeInputValueSetter) {
@@ -190,7 +190,7 @@ const setupMenuEventListeners = async () => {
   await listen("menu-open", () => {
     // 열기 버튼 클릭 이벤트 트리거
     const openButton = document.querySelector(
-      '[data-test-id="open-button"]'
+      '[data-test-id="open-button"]',
     ) as HTMLButtonElement;
     if (openButton && !openButton.disabled) {
       openButton.click();
@@ -200,14 +200,14 @@ const setupMenuEventListeners = async () => {
   await listen("menu-save", () => {
     // 저장 버튼 클릭 이벤트 트리거
     const saveButton = document.querySelector(
-      '[data-test-id="save-button"]'
+      '[data-test-id="save-button"]',
     ) as HTMLButtonElement;
     if (saveButton && !saveButton.disabled) {
       saveButton.click();
 
       setTimeout(() => {
         const saveExcelButton = document.querySelector(
-          '[data-test-id="export-excel-menuitem"]'
+          '[data-test-id="export-excel-menuitem"]',
         ) as HTMLButtonElement;
         if (saveExcelButton && !saveExcelButton.disabled) {
           saveExcelButton.click();
@@ -216,7 +216,7 @@ const setupMenuEventListeners = async () => {
     }
   });
 
-    // 창 닫기 확인 이벤트 리스너 (React 컴포넌트에서 처리)
+  // 창 닫기 확인 이벤트 리스너 (React 컴포넌트에서 처리)
   await listen("confirm-close", () => {
     // React 컴포넌트에서 다이얼로그를 표시하도록 이벤트만 전달
     // 실제 처리는 DailyWorkForm.tsx에서 수행
@@ -236,7 +236,7 @@ if (navigator.userAgent.includes("Windows")) {
     ) {
       event.preventDefault();
       const openButton = document.querySelector(
-        '[data-test-id="open-button"]'
+        '[data-test-id="open-button"]',
       ) as HTMLButtonElement;
       if (openButton && !openButton.disabled) {
         openButton.click();
@@ -253,14 +253,14 @@ if (navigator.userAgent.includes("Windows")) {
     ) {
       event.preventDefault();
       const saveButton = document.querySelector(
-        '[data-test-id="save-button"]'
+        '[data-test-id="save-button"]',
       ) as HTMLButtonElement;
       if (saveButton && !saveButton.disabled) {
         saveButton.click();
 
         setTimeout(() => {
           const saveExcelButton = document.querySelector(
-            '[data-test-id="export-excel-menuitem"]'
+            '[data-test-id="export-excel-menuitem"]',
           ) as HTMLButtonElement;
           if (saveExcelButton && !saveExcelButton.disabled) {
             saveExcelButton.click();
@@ -277,5 +277,5 @@ setupMenuEventListeners();
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
