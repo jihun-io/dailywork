@@ -66,16 +66,6 @@ export function UserInfoDialog({
                 gap: tokens.spacingVerticalL,
               }}
             >
-              <Field label="작성자" required>
-                <Input
-                  ref={nameInputRef}
-                  placeholder="이름을 입력하세요"
-                  value={formData.name}
-                  contentBefore={<Person20Regular />}
-                  onChange={(e) => onFormDataChange({ name: e.target.value })}
-                  size="large"
-                />
-              </Field>
               <Field label="부서명" required>
                 <Input
                   ref={departmentInputRef}
@@ -85,6 +75,16 @@ export function UserInfoDialog({
                   onChange={(e) =>
                     onFormDataChange({ department: e.target.value })
                   }
+                  size="large"
+                />
+              </Field>
+              <Field label="작성자" required>
+                <Input
+                  ref={nameInputRef}
+                  placeholder="이름을 입력하세요"
+                  value={formData.name}
+                  contentBefore={<Person20Regular />}
+                  onChange={(e) => onFormDataChange({ name: e.target.value })}
                   size="large"
                 />
               </Field>
