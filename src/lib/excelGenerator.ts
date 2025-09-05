@@ -4,6 +4,7 @@ import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { normalizeDate } from "../utils/dateUtils";
 import { generateFileName } from "../utils/fileNameUtils.ts";
+import { calculateRowHeight } from "../utils/textMeasurer";
 
 export async function generateExcelFile(data: DailyWorkData) {
   try {
@@ -33,6 +34,12 @@ export async function generateExcelFile(data: DailyWorkData) {
       cell.value = value;
     };
 
+    // 셀 높이 업데이트 함수 추가
+    const updateRowHeight = (rowNumber: number, height: number) => {
+      const row = worksheet.getRow(rowNumber);
+      row.height = height;
+    };
+
     // 기본 정보 채우기
     updateCellValue("C4", formatDate(data.date));
     updateCellValue(
@@ -57,6 +64,37 @@ export async function generateExcelFile(data: DailyWorkData) {
       updateCellValue(`B${row}`, task.description);
       updateCellValue(`D${row}`, task.completed ? "O" : "");
       updateCellValue(`E${row}`, task.notes);
+
+      // 텍스트 길이에 따라 행 높이 동적 조정
+      let descriptionHeight: number | null = null;
+      let notesHeight: number | null = null;
+      if (task.description && task.description.trim() !== "") {
+        // B열의 대략적인 너비 (픽셀) - Excel에서 실제 측정값에 기반
+        const cellWidth = 280; // B열 너비 (조정 가능)
+        const calculatedHeight = calculateRowHeight(
+          task.description,
+          cellWidth,
+        );
+
+        descriptionHeight = calculatedHeight;
+      }
+
+      if (task.notes && task.notes.trim() !== "") {
+        const cellWidth = 214; // E열 너비 (조정 가능)
+        const calculatedHeight = calculateRowHeight(task.notes, cellWidth);
+
+        notesHeight = calculatedHeight;
+      }
+
+      if (descriptionHeight || notesHeight) {
+        const finalHeight = Math.max(
+          descriptionHeight || 0,
+          notesHeight || 0,
+          15, // 최소 행 높이
+        );
+
+        if (finalHeight > 33.75) updateRowHeight(row, finalHeight);
+      }
     });
 
     // 특이사항 입력
