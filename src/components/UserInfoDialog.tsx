@@ -15,6 +15,7 @@ import { Person20Regular, Building20Regular } from "@fluentui/react-icons";
 import { DailyWorkData } from "../types/dailyWork";
 import { focusInputWithDelay } from "./utils/userInfoUtils";
 import { loadUserInfo } from "../lib/autoFill.ts";
+import { useStyles } from "./styles/DailyWorkForm.styles.ts";
 
 interface UserInfoDialogProps {
   isOpen: boolean;
@@ -33,6 +34,8 @@ export function UserInfoDialog({
   onSave,
   focusTarget,
 }: UserInfoDialogProps) {
+  const styles = useStyles();
+
   const departmentInputRef = useRef<HTMLInputElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
@@ -76,7 +79,7 @@ export function UserInfoDialog({
       modalType="alert"
     >
       <DialogSurface>
-        <DialogBody>
+        <DialogBody className={styles.dialog}>
           <DialogTitle>사용자 정보 설정</DialogTitle>
           <DialogContent>
             <div
