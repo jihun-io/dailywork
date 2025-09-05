@@ -14,6 +14,7 @@ import {
 import { Person20Regular, Building20Regular } from "@fluentui/react-icons";
 import { DailyWorkData } from "../types/dailyWork";
 import { focusInputWithDelay } from "./utils/userInfoUtils";
+import { loadUserInfo } from "../lib/autoFill.ts";
 
 interface UserInfoDialogProps {
   isOpen: boolean;
@@ -41,11 +42,30 @@ export function UserInfoDialog({
       const ref =
         focusTarget === "department" ? departmentInputRef : nameInputRef;
       focusInputWithDelay(ref);
+    } else if (!open) {
+      handleSaveWithoutSave(); // 다이얼로그가 닫힐 때 저장하지 않고 닫기
     }
   };
 
   const handleSaveAndClose = () => {
     onSave();
+    onOpenChange(false);
+  };
+
+  const handleSaveWithoutSave = () => {
+    const userInfo = loadUserInfo();
+    if (userInfo) {
+      onFormDataChange({
+        name: userInfo.name,
+        department: userInfo.department,
+      });
+    } else {
+      onFormDataChange({
+        name: "",
+        department: "",
+      });
+    }
+
     onOpenChange(false);
   };
 
@@ -91,7 +111,7 @@ export function UserInfoDialog({
             </div>
           </DialogContent>
           <DialogActions style={{ paddingTop: "16px" }}>
-            <Button appearance="secondary" onClick={() => onOpenChange(false)}>
+            <Button appearance="secondary" onClick={handleSaveWithoutSave}>
               취소
             </Button>
             <Button appearance="primary" onClick={handleSaveAndClose}>
