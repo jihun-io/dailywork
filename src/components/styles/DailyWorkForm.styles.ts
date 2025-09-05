@@ -10,6 +10,9 @@ export const useStyles = makeStyles({
     overflow: "hidden",
     userSelect: "none",
     cursor: "default",
+    "& textarea, & input": {
+      fontSize: tokens.fontSizeBase300,
+    },
   },
   mainContent: {
     display: "flex",
@@ -90,7 +93,6 @@ export const useStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
     gap: tokens.spacingVerticalXL,
-    marginBottom: tokens.spacingVerticalXXL,
   },
   firstRow: {
     display: "flex",
@@ -265,6 +267,11 @@ export const useStyles = makeStyles({
     "& input": {
       minWidth: "0 !important",
       width: "100%",
+    },
+  },
+  dialog: {
+    "& textarea, & input": {
+      fontSize: tokens.fontSizeBase300,
     },
   },
 });

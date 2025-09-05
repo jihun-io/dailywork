@@ -2,10 +2,10 @@ import {
   Card,
   Text,
   Button,
-  Input,
   Field,
   Checkbox,
   Tooltip,
+  Textarea,
 } from "@fluentui/react-components";
 import {
   Add20Regular,
@@ -67,11 +67,7 @@ export function TaskCard({
                     task.completed ? styles.taskNumberCompleted : ""
                   }`}
                 >
-                  {task.completed ? (
-                    <CheckmarkCircle20Filled />
-                  ) : (
-                    index + 1
-                  )}
+                  {task.completed ? <CheckmarkCircle20Filled /> : index + 1}
                 </div>
 
                 <div className={styles.taskActions}>
@@ -126,7 +122,7 @@ export function TaskCard({
 
               <div className={styles.taskFieldContainer}>
                 <Field label={`업무 ${index + 1}`} required>
-                  <Input
+                  <Textarea
                     placeholder="수행한 업무 내용을 입력하세요"
                     value={task.description}
                     onChange={(e) =>
@@ -135,12 +131,13 @@ export function TaskCard({
                       })
                     }
                     size="large"
+                    rows={4}
                   />
                 </Field>
 
                 <div className={styles.taskBottomSection}>
                   <Field label="비고">
-                    <Input
+                    <Textarea
                       placeholder="진행상황, 이슈사항 등을 입력하세요"
                       value={task.notes}
                       onChange={(e) =>
@@ -149,6 +146,7 @@ export function TaskCard({
                         })
                       }
                       size="large"
+                      rows={2}
                     />
                   </Field>
                   <Checkbox

@@ -1,12 +1,5 @@
-import {
-  Card,
-  Text,
-  Field,
-  Textarea,
-} from "@fluentui/react-components";
-import {
-  Info20Regular,
-} from "@fluentui/react-icons";
+import { Card, Text, Field, Textarea } from "@fluentui/react-components";
+import { Info20Regular } from "@fluentui/react-icons";
 import { DailyWorkData } from "../types/dailyWork";
 import { useStyles } from "./styles/DailyWorkForm.styles";
 
@@ -32,11 +25,9 @@ export function SpecialNotesCard({
       <div className={styles.cardContent}>
         <Field>
           <Textarea
-            placeholder="신규 발생 업무, 이슈사항, 특별한 사항 등을 작성하세요..."
+            placeholder="신규 발생 업무, 이슈사항, 특별한 사항 등을 작성하세요"
             value={formData.specialNotes}
-            onChange={(e) =>
-              onFormDataChange({ specialNotes: e.target.value })
-            }
+            onChange={(e) => onFormDataChange({ specialNotes: e.target.value })}
             className={styles.specialNotesField}
             resize="none"
           />

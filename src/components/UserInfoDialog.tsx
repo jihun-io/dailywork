@@ -14,6 +14,8 @@ import {
 import { Person20Regular, Building20Regular } from "@fluentui/react-icons";
 import { DailyWorkData } from "../types/dailyWork";
 import { focusInputWithDelay } from "./utils/userInfoUtils";
+import { loadUserInfo } from "../lib/autoFill.ts";
+import { useStyles } from "./styles/DailyWorkForm.styles.ts";
 
 interface UserInfoDialogProps {
   isOpen: boolean;
@@ -32,6 +34,8 @@ export function UserInfoDialog({
   onSave,
   focusTarget,
 }: UserInfoDialogProps) {
+  const styles = useStyles();
+
   const departmentInputRef = useRef<HTMLInputElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,6 +45,8 @@ export function UserInfoDialog({
       const ref =
         focusTarget === "department" ? departmentInputRef : nameInputRef;
       focusInputWithDelay(ref);
+    } else if (!open) {
+      handleSaveWithoutSave(); // 다이얼로그가 닫힐 때 저장하지 않고 닫기
     }
   };
 
@@ -49,13 +55,31 @@ export function UserInfoDialog({
     onOpenChange(false);
   };
 
+  const handleSaveWithoutSave = () => {
+    const userInfo = loadUserInfo();
+    if (userInfo) {
+      onFormDataChange({
+        name: userInfo.name,
+        department: userInfo.department,
+      });
+    } else {
+      onFormDataChange({
+        name: "",
+        department: "",
+      });
+    }
+
+    onOpenChange(false);
+  };
+
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(_, data) => handleOpenChange(data.open)}
+      modalType="alert"
     >
       <DialogSurface>
-        <DialogBody>
+        <DialogBody className={styles.dialog}>
           <DialogTitle>사용자 정보 설정</DialogTitle>
           <DialogContent>
             <div
@@ -65,16 +89,6 @@ export function UserInfoDialog({
                 gap: tokens.spacingVerticalL,
               }}
             >
-              <Field label="작성자" required>
-                <Input
-                  ref={nameInputRef}
-                  placeholder="이름을 입력하세요"
-                  value={formData.name}
-                  contentBefore={<Person20Regular />}
-                  onChange={(e) => onFormDataChange({ name: e.target.value })}
-                  size="large"
-                />
-              </Field>
               <Field label="부서명" required>
                 <Input
                   ref={departmentInputRef}
@@ -87,10 +101,20 @@ export function UserInfoDialog({
                   size="large"
                 />
               </Field>
+              <Field label="작성자" required>
+                <Input
+                  ref={nameInputRef}
+                  placeholder="이름을 입력하세요"
+                  value={formData.name}
+                  contentBefore={<Person20Regular />}
+                  onChange={(e) => onFormDataChange({ name: e.target.value })}
+                  size="large"
+                />
+              </Field>
             </div>
           </DialogContent>
           <DialogActions style={{ paddingTop: "16px" }}>
-            <Button appearance="secondary" onClick={() => onOpenChange(false)}>
+            <Button appearance="secondary" onClick={handleSaveWithoutSave}>
               취소
             </Button>
             <Button appearance="primary" onClick={handleSaveAndClose}>
