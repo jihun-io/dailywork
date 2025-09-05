@@ -93,7 +93,6 @@ export const useStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
     gap: tokens.spacingVerticalXL,
-    marginBottom: tokens.spacingVerticalXXL,
   },
   firstRow: {
     display: "flex",
