@@ -53,6 +53,7 @@ export function UserInfoDialog({
     <Dialog
       open={isOpen}
       onOpenChange={(_, data) => handleOpenChange(data.open)}
+      modalType="alert"
     >
       <DialogSurface>
         <DialogBody>
