@@ -331,7 +331,7 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dateFormat, setDateFormat] = useState<
     "yyyy-mm-dd" | "yyyymmdd" | "yymmdd" | "dateString"
-  >("yyyymmdd");
+  >(preferredFileNameFormat.dateFormat);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
