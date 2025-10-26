@@ -549,7 +549,7 @@ export const FileNameCustomizer: React.FC<FileNameCustomizerProps> = ({
 
               {/* 미리보기 */}
               <div className={styles.blockSection}>
-                <Text className={styles.sectionTitle}>파일명 미리보기</Text>
+                <Text className={styles.sectionTitle}>파일 이름 미리 보기</Text>
                 <div className={styles.preview}>{generatePreview()}</div>
               </div>
             </div>
