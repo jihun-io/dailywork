@@ -31,56 +31,11 @@ const setupMenuEventListeners = async () => {
         if (start !== end) {
           const selectedText = activeElement.value.substring(start, end);
 
-          // 클립보드에 복사
+          // 클립보드에 복사 (Tauri API 사용)
           await writeText(selectedText);
 
-          // 선택된 텍스트 삭제
-          const currentValue = activeElement.value;
-          const newValue =
-            currentValue.substring(0, start) + currentValue.substring(end);
-          activeElement.value = newValue;
-
-          // 커서 위치 설정
-          activeElement.setSelectionRange(start, start);
-
-          // React의 상태를 강제로 업데이트하기 위해 React 내부 속성 설정
-          let nativeInputValueSetter;
-          if (activeElement.tagName === "INPUT") {
-            nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-              window.HTMLInputElement.prototype,
-              "value",
-            )?.set;
-          } else if (activeElement.tagName === "TEXTAREA") {
-            nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-              window.HTMLTextAreaElement.prototype,
-              "value",
-            )?.set;
-          }
-
-          if (nativeInputValueSetter) {
-            nativeInputValueSetter.call(activeElement, newValue);
-          }
-
-          // React SyntheticEvent를 위한 고급 이벤트 생성
-          const inputEvent = new InputEvent("input", {
-            bubbles: true,
-            cancelable: true,
-            data: null, // 잘라내기는 데이터가 제거되므로 null
-            inputType: "deleteContentBackward",
-          });
-
-          const changeEvent = new Event("change", {
-            bubbles: true,
-            cancelable: true,
-          });
-
-          // React의 이벤트 리스너를 트리거
-          activeElement.dispatchEvent(inputEvent);
-          activeElement.dispatchEvent(changeEvent);
-
-          // 추가적으로 focus 이벤트도 발생시켜 React가 변경 사항을 확실히 감지하도록 함
-          activeElement.blur();
-          activeElement.focus();
+          // 선택된 텍스트 삭제 (execCommand 사용으로 undo 히스토리에 기록됨)
+          document.execCommand("delete");
         }
       } else {
         document.execCommand("cut");
@@ -135,32 +90,8 @@ const setupMenuEventListeners = async () => {
           return;
         }
 
-        // 현재 커서 위치 확인
-        const start = activeElement.selectionStart || 0;
-        const end = activeElement.selectionEnd || 0;
-        const currentValue = activeElement.value;
-
-        // 새 값 계산
-        const newValue =
-          currentValue.substring(0, start) + text + currentValue.substring(end);
-        const newCursorPos = start + text.length;
-
-        // React-friendly한 방식으로 값 설정
-        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-          activeElement.constructor.prototype,
-          "value",
-        )?.set;
-
-        if (nativeInputValueSetter) {
-          nativeInputValueSetter.call(activeElement, newValue);
-        }
-
-        // 커서 위치 설정
-        activeElement.setSelectionRange(newCursorPos, newCursorPos);
-
-        // React가 인식할 수 있는 input 이벤트만 발생
-        const inputEvent = new Event("input", { bubbles: true });
-        activeElement.dispatchEvent(inputEvent);
+        // 텍스트 삽입 (execCommand 사용으로 undo 히스토리에 기록됨)
+        document.execCommand("insertText", false, text);
       } else {
         document.execCommand("paste");
       }
